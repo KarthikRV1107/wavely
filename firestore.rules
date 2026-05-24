@@ -1,0 +1,23 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId} {
+      allow read, write: if request.auth.uid == userId;
+    }
+    match /playlists/{playlistId} {
+      allow read, write: if request.auth.uid == resource.data.userId;
+      allow create:      if request.auth != null && request.resource.data.userId == request.auth.uid;
+    }
+    match /playlist_songs/{songId} {
+      allow read, write: if request.auth != null;
+    }
+    match /liked_songs/{docId} {
+      allow read, write: if request.auth.uid == resource.data.userId;
+      allow create:      if request.auth != null && request.resource.data.userId == request.auth.uid;
+    }
+    match /recently_played/{docId} {
+      allow read, write: if request.auth.uid == resource.data.userId;
+      allow create:      if request.auth != null && request.resource.data.userId == request.auth.uid;
+    }
+  }
+}
