@@ -3,18 +3,25 @@
 // FIX: Stable handlePlay/handleLike with minimal deps
 // FIX: No inline style objects that recreate on every render
 import { useState, useCallback, memo } from 'react';
-import { usePlayerActions, usePlayerState } from '../../context/PlayerContext';
+import { useLibrary } from '../../context/LibraryContext';
+import {
+  useCurrentSong,
+  useIsPlaying,
+  usePlayerActions,
+} from '../../context/PlayerContext';
 import { useAuth }    from '../../context/AuthContext';
 import { formatTime } from '../../utils/formatTime';
-import { addLikedSong, removeLikedSong, LIKED } from '../../services/firestore';
+import { LIKED } from '../../services/firestore';
 
 const SongCard = memo(function SongCard({
   song, queue=[], queueIndex=0, isLiked:initLiked,
   onAddToPlaylist, showIndex=false, style={},
 }) {
   const { playSong, togglePlay } = usePlayerActions();
-  const { currentSong, isPlaying } = usePlayerState();
+  const currentSong = useCurrentSong();
+  const isPlaying = useIsPlaying();
   const { user } = useAuth();
+  const { likeSong, unlikeSong } = useLibrary();
 
   const [liked,   setLiked]   = useState(() =>
     initLiked !== undefined ? initLiked : LIKED.get(song.videoId) === true
@@ -36,15 +43,15 @@ const SongCard = memo(function SongCard({
     const next = !liked;
     setLiked(next);
     if (next) {
-      addLikedSong(user.uid, {
+      likeSong({
         videoId: song.videoId, title: song.title,
         channelName: song.channelName, thumbnailUrl: song.thumbnailUrl,
         durationSeconds: song.durationSeconds ?? 0,
       });
     } else {
-      removeLikedSong(user.uid, song.videoId);
+      unlikeSong(song.videoId);
     }
-  }, [user?.uid, liked, song.videoId]);
+  }, [user?.uid, liked, song.videoId, song.title, song.channelName, song.thumbnailUrl, song.durationSeconds, likeSong, unlikeSong]);
 
   const bg = isActive ? 'rgba(124,106,247,0.1)' : hovered ? 'var(--bg3)' : 'transparent';
   const border = isActive ? '1px solid rgba(124,106,247,0.18)' : '1px solid transparent';

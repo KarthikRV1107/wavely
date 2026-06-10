@@ -2,10 +2,14 @@
 // FIX: Split into two contexts — PlayerStateCtx and PlayerActionsCtx
 // Actions never change reference → components using only actions never re-render
 // from state changes (e.g. setTime fires every second but doesn't affect action refs)
-import { createContext, useContext, useReducer, useRef, useMemo, useCallback } from 'react';
+import { createContext, useContext, useReducer, useRef, useMemo } from 'react';
 
-const StateCtx   = createContext(null);
-const ActionsCtx = createContext(null);
+const CurrentSongCtx = createContext(null);
+const PlaybackCtx    = createContext(false);
+const VolumeCtx      = createContext(80);
+const CurrentTimeCtx = createContext(0);
+const QueueCtx       = createContext({ queue: [], queueIndex: 0 });
+const ActionsCtx     = createContext(null);
 
 const init = {
   currentSong: null, queue: [], queueIndex: 0,
@@ -35,6 +39,10 @@ const reducer = (s, a) => {
 export const PlayerProvider = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, init);
   const playerRef = useRef(null);
+  const queueState = useMemo(() => ({
+    queue: state.queue,
+    queueIndex: state.queueIndex,
+  }), [state.queue, state.queueIndex]);
 
   // Actions are stable refs — created once, never change
   const actions = useMemo(() => ({
@@ -51,23 +59,40 @@ export const PlayerProvider = ({ children }) => {
 
   return (
     <ActionsCtx.Provider value={actions}>
-      <StateCtx.Provider value={state}>
-        {children}
-      </StateCtx.Provider>
+      <CurrentSongCtx.Provider value={state.currentSong}>
+        <PlaybackCtx.Provider value={state.isPlaying}>
+          <VolumeCtx.Provider value={state.volume}>
+            <CurrentTimeCtx.Provider value={state.currentTime}>
+              <QueueCtx.Provider value={queueState}>
+                {children}
+              </QueueCtx.Provider>
+            </CurrentTimeCtx.Provider>
+          </VolumeCtx.Provider>
+        </PlaybackCtx.Provider>
+      </CurrentSongCtx.Provider>
     </ActionsCtx.Provider>
   );
 };
 
 // usePlayer — full state + actions (use sparingly, re-renders on every state change)
 export const usePlayer = () => {
-  const s = useContext(StateCtx);
-  const a = useContext(ActionsCtx);
-  if (!s || !a) throw new Error('usePlayer must be inside PlayerProvider');
-  return { ...s, ...a };
+  const currentSong = useCurrentSong();
+  const isPlaying = useIsPlaying();
+  const volume = useVolume();
+  const currentTime = useCurrentTime();
+  const { queue, queueIndex } = useQueueState();
+  const actions = usePlayerActions();
+  return { currentSong, isPlaying, volume, currentTime, queue, queueIndex, ...actions };
 };
 
 // Granular selectors — components only re-render when their slice changes
-export const usePlayerState  = () => useContext(StateCtx);
-export const usePlayerActions= () => useContext(ActionsCtx);
-export const useCurrentSong  = () => useContext(StateCtx)?.currentSong;
-export const useIsPlaying    = () => useContext(StateCtx)?.isPlaying;
+export const usePlayerActions = () => {
+  const value = useContext(ActionsCtx);
+  if (!value) throw new Error('usePlayerActions must be inside PlayerProvider');
+  return value;
+};
+export const useCurrentSong = () => useContext(CurrentSongCtx);
+export const useIsPlaying = () => useContext(PlaybackCtx);
+export const useVolume = () => useContext(VolumeCtx);
+export const useCurrentTime = () => useContext(CurrentTimeCtx);
+export const useQueueState = () => useContext(QueueCtx);

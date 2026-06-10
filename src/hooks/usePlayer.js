@@ -1,9 +1,16 @@
 // src/hooks/usePlayer.js — updated to use split PlayerContext
 import { useEffect, useRef, useCallback } from 'react';
-import { usePlayerState, usePlayerActions } from '../context/PlayerContext';
+import {
+  useCurrentSong,
+  useIsPlaying,
+  usePlayerActions,
+  useVolume,
+} from '../context/PlayerContext';
 
 export const useYouTubePlayer = () => {
-  const { currentSong, isPlaying, volume } = usePlayerState();
+  const currentSong = useCurrentSong();
+  const isPlaying = useIsPlaying();
+  const volume = useVolume();
   const { setTime, nextSong, dispatch, playerRef } = usePlayerActions();
 
   const intervalRef  = useRef(null);

@@ -2,6 +2,7 @@
 import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { LibraryProvider } from './context/LibraryContext';
 import { PlayerProvider }        from './context/PlayerContext';
 import Layout from './components/Layout';
 import Player from './components/Player/Player';
@@ -61,9 +62,11 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <PlayerProvider>
-          <AppShell/>
-        </PlayerProvider>
+        <LibraryProvider>
+          <PlayerProvider>
+            <AppShell/>
+          </PlayerProvider>
+        </LibraryProvider>
       </AuthProvider>
     </BrowserRouter>
   );

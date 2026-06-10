@@ -1,61 +1,35 @@
 // src/pages/LibraryPage.jsx — loads from localStorage instantly, then revalidates
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import { useNavigate }   from 'react-router-dom';
 import { useAuth }       from '../context/AuthContext';
+import { useLibrary }    from '../context/LibraryContext';
 import { useBreakpoint } from '../hooks/useBreakpoint';
-import {
-  getUserPlaylists, getLikedSongs, createPlaylist,
-} from '../services/firestore';
 import SongCard from '../components/SongCard/SongCard';
 
 const TABS = ['Playlists', 'Liked Songs'];
 
 export default function LibraryPage() {
   const { user }    = useAuth();
+  const {
+    playlists,
+    likedSongs: liked,
+    loading,
+    createPlaylistEntry,
+  } = useLibrary();
   const navigate    = useNavigate();
   const { isDesktop } = useBreakpoint();
   const uid         = user?.uid;
 
   const [tab,       setTab]       = useState(0);
-  const [playlists, setPlaylists] = useState([]);
-  const [liked,     setLiked]     = useState([]);
-  const [loading,   setLoading]   = useState(true);
   const [modal,     setModal]     = useState(false);
   const [name,      setName]      = useState('');
   const [saving,    setSaving]    = useState(false);
-  const alive = useRef(true);
-
-  useEffect(() => {
-    if (!uid) return;
-    alive.current = true;
-
-    (async () => {
-      try {
-        // Both read from localStorage first → instant
-        const [pls, lks] = await Promise.all([
-          getUserPlaylists(uid),
-          getLikedSongs(uid),
-        ]);
-        if (!alive.current) return;
-        setPlaylists(pls);
-        setLiked(lks);
-      } catch (e) {
-        console.error('Library load:', e);
-      } finally {
-        if (alive.current) setLoading(false);
-      }
-    })();
-
-    return () => { alive.current = false; };
-  }, [uid]);
 
   const handleCreate = async () => {
     if (!name.trim() || !uid) return;
     setSaving(true);
     try {
-      const id = await createPlaylist(uid, { name: name.trim() });
-      const newPl = { id, name: name.trim(), songCount: 0 };
-      setPlaylists(p => [newPl, ...p]);
+      await createPlaylistEntry(name.trim());
       setName('');
       setModal(false);
     } catch (e) {
@@ -64,9 +38,6 @@ export default function LibraryPage() {
       setSaving(false);
     }
   };
-
-  const p = isDesktop ? '28px 0' : '16px 16px';
-
   return (
     <div>
       <div style={{ padding: isDesktop ? '28px 0 0' : '16px 16px 0' }}>

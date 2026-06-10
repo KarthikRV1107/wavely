@@ -2,14 +2,24 @@
 // FIX: Uses granular selectors — only re-renders on relevant state slices
 // setTime fires every second; only Player re-renders, not the whole tree
 import { memo } from 'react';
-import { usePlayerState, usePlayerActions } from '../../context/PlayerContext';
+import {
+  useCurrentSong,
+  useCurrentTime,
+  useIsPlaying,
+  usePlayerActions,
+  useQueueState,
+  useVolume,
+} from '../../context/PlayerContext';
 import { useYouTubePlayer } from '../../hooks/usePlayer';
 import { useBreakpoint }    from '../../hooks/useBreakpoint';
 import { formatTime }       from '../../utils/formatTime';
 
 const Player = memo(function Player() {
-  const { currentSong, isPlaying, currentTime, volume, queue, queueIndex }
-    = usePlayerState();
+  const currentSong = useCurrentSong();
+  const isPlaying = useIsPlaying();
+  const currentTime = useCurrentTime();
+  const volume = useVolume();
+  const { queue, queueIndex } = useQueueState();
   const { togglePlay, nextSong, prevSong, setVolume }
     = usePlayerActions();
   const { containerRef, seekTo } = useYouTubePlayer();

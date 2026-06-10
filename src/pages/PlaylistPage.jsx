@@ -2,25 +2,26 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth }   from '../context/AuthContext';
-import { usePlayer } from '../context/PlayerContext';
+import { useLibrary } from '../context/LibraryContext';
+import { usePlayerActions } from '../context/PlayerContext';
 import { useBreakpoint } from '../hooks/useBreakpoint';
 import {
-  getPlaylist, getPlaylistSongs,
+  getCachedPlaylist, getCachedPlaylistSongs, getPlaylist, getPlaylistSongs,
   removeSongFromPlaylist, deletePlaylist,
 } from '../services/firestore';
-import { formatTime } from '../utils/formatTime';
 import SongCard from '../components/SongCard/SongCard';
 
 export default function PlaylistPage() {
   const { id }       = useParams();
   const navigate     = useNavigate();
   const { user }     = useAuth();
-  const { playSong } = usePlayer();
+  const { adjustPlaylistSongCount, removePlaylistEntry } = useLibrary();
+  const { playSong } = usePlayerActions();
   const { isDesktop } = useBreakpoint();
 
-  const [playlist, setPlaylist] = useState(null);
-  const [songs,    setSongs]    = useState([]);
-  const [loading,  setLoading]  = useState(true);
+  const [playlist, setPlaylist] = useState(() => (id ? getCachedPlaylist(id) : null));
+  const [songs,    setSongs]    = useState(() => (id ? getCachedPlaylistSongs(id) : []));
+  const [loading,  setLoading]  = useState(() => !(id && getCachedPlaylist(id)));
   const [menu,     setMenu]     = useState(false);
   const alive = useRef(true);
 
@@ -67,11 +68,13 @@ export default function PlaylistPage() {
     // Optimistic: remove from UI instantly
     setSongs(p => p.filter(s => s.id !== song.id));
     setPlaylist(p => p ? { ...p, songCount: Math.max(0,(p.songCount??1)-1) } : p);
+    adjustPlaylistSongCount(id, -1);
     removeSongFromPlaylist(song.id, id, user?.uid).catch(console.error);
   };
 
   const handleDelete = async () => {
     if (!window.confirm(`Delete "${playlist?.name}"?`)) return;
+    removePlaylistEntry(id);
     deletePlaylist(id, user?.uid).catch(console.error);
     navigate('/library', { replace: true });
   };

@@ -1,6 +1,6 @@
 // src/components/Player/VolumeControl.jsx
 import { useState } from 'react';
-import { usePlayer } from '../../context/PlayerContext';
+import { usePlayerActions, useVolume } from '../../context/PlayerContext';
 
 const VolumeHigh = () => (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
@@ -16,7 +16,8 @@ const VolumeMute = () => (
 );
 
 const VolumeControl = () => {
-  const { volume, setVolume } = usePlayer();
+  const volume = useVolume();
+  const { setVolume } = usePlayerActions();
   const [hovering, setHovering] = useState(false);
 
   return (

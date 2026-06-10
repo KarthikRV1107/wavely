@@ -89,6 +89,12 @@ const _fetchLikedFromFirestore = async (userId) => {
 
 export const isLiked = (videoId) => LIKED.get(videoId) === true;
 
+export const getCachedLikedSongs = (userId) => {
+  const cached = lsGet(`wv_liked_songs_${userId}`) ?? [];
+  cached.forEach(s => LIKED.set(s.videoId, true));
+  return cached;
+};
+
 export const addLikedSong = async (userId, song) => {
   // Instant optimistic update
   LIKED.set(song.videoId, true);
@@ -175,6 +181,13 @@ export const getUserPlaylists = async (userId) => {
   return _fetchPlaylistsFromFirestore(userId);
 };
 
+export const getCachedUserPlaylists = (userId) => {
+  if (PL_CACHE.has(userId)) return PL_CACHE.get(userId);
+  const cached = lsGet(`wv_pls_${userId}`) ?? [];
+  if (cached.length) PL_CACHE.set(userId, cached);
+  return cached;
+};
+
 export const createPlaylist = async (userId, { name, description = '' }) => {
   const tempId = `temp_${Date.now()}`;
   const newPl  = {
@@ -216,6 +229,14 @@ export const getPlaylist = async (id) => {
   const snap = await getDoc(doc(db, 'playlists', id));
   if (!snap.exists()) throw new Error('Playlist not found');
   return { id: snap.id, ...snap.data() };
+};
+
+export const getCachedPlaylist = (id) => {
+  for (const [, pls] of PL_CACHE) {
+    const found = pls.find(p => p.id === id);
+    if (found) return found;
+  }
+  return null;
 };
 
 export const deletePlaylist = async (id, userId) => {
@@ -298,6 +319,13 @@ export const getPlaylistSongs = async (playlistId) => {
 
   // 3. Firestore
   return _fetchPlaylistSongsFromFirestore(playlistId);
+};
+
+export const getCachedPlaylistSongs = (playlistId) => {
+  if (PLS_CACHE.has(playlistId)) return PLS_CACHE.get(playlistId);
+  const cached = lsGet(`wv_plsongs_${playlistId}`) ?? [];
+  if (cached.length) PLS_CACHE.set(playlistId, cached);
+  return cached;
 };
 
 const _fetchPlaylistSongsFromFirestore = async (playlistId) => {

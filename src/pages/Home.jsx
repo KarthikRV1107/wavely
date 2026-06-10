@@ -3,10 +3,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate }      from 'react-router-dom';
 import { useAuth }          from '../context/AuthContext';
-import { usePlayer }        from '../context/PlayerContext';
+import { useLibrary }       from '../context/LibraryContext';
+import { usePlayerActions } from '../context/PlayerContext';
 import { useBreakpoint }    from '../hooks/useBreakpoint';
 import { getTrendingSongs } from '../services/youtube';
-import { getUserPlaylists } from '../services/firestore';
 import SongCard             from '../components/SongCard/SongCard';
 import PlaylistForm         from '../components/Playlist/PlaylistForm';
 
@@ -16,18 +16,17 @@ const greet = () =>
 // Module cache — survives React re-renders and route changes
 // This is the fastest possible storage: a plain JS variable
 let _songs = null;
-let _lists = {};  // keyed by uid
 
 export default function Home() {
   const { user, logout }   = useAuth();
-  const { playSong }       = usePlayer();
+  const { playlists, loading: libraryLoading } = useLibrary();
+  const { playSong }       = usePlayerActions();
   const navigate           = useNavigate();
   const { isDesktop }      = useBreakpoint();
   const uid                = user?.uid;
 
   // Seed state from module cache — if data exists, renders instantly with NO loading flash
   const [trending,  setTrending]  = useState(_songs ?? []);
-  const [playlists, setPlaylists] = useState(_lists[uid] ?? []);
   const [loading,   setLoading]   = useState(!_songs);  // false if cache hit
   const [error,     setError]     = useState(null);
   const [modal,     setModal]     = useState(null);
@@ -39,21 +38,15 @@ export default function Home() {
 
     // If we already have data in module cache, DON'T show loading spinner.
     // Just revalidate silently in background.
-    const hasCache = !!(_songs && _lists[uid]);
+    const hasCache = !!_songs;
 
     const fetch = async () => {
       try {
-        // Run both fetches in parallel
-        const [songs, lists] = await Promise.all([
-          getTrendingSongs(),
-          getUserPlaylists(uid),
-        ]);
+        const songs = await getTrendingSongs();
         if (!alive.current) return;
         // Update module cache
-        _songs     = songs;
-        _lists[uid]= lists;
+        _songs = songs;
         setTrending(songs);
-        setPlaylists(lists);
       } catch (e) {
         if (alive.current && !hasCache) setError(e.message);
       } finally {
@@ -66,8 +59,9 @@ export default function Home() {
   }, [uid]);
 
   const firstName = (user?.displayName || user?.email || '').split(/[\s@]/)[0] || 'Friend';
-  const featured  = trending[0];
-  const rest      = trending.slice(1);
+  const featured = trending[0];
+  const rest = trending.slice(1);
+  const showPlaylistsLoading = libraryLoading && playlists.length === 0;
 
   return (
     <div>
@@ -166,7 +160,7 @@ export default function Home() {
             }}>+ New</button>
           </div>
 
-          {loading && !playlists.length
+          {showPlaylistsLoading
             ? <div style={{ display:'flex', gap:8 }}>
                 {[0,1,2].map(i => <SK key={i} w={96} h={110} r={10}/>)}
               </div>
@@ -214,7 +208,6 @@ export default function Home() {
       {modal && modal !== 'new' && (
         <PlaylistForm song={modal} playlists={playlists}
           onClose={() => setModal(null)}
-          onCreated={pl => { setPlaylists(p => [pl,...p]); _lists[uid] = [pl,...(playlists)]; }}
         />
       )}
     </div>

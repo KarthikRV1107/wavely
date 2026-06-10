@@ -1,8 +1,7 @@
 // src/pages/SearchPage.jsx
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { searchSongs }    from '../services/youtube';
-import { getUserPlaylists } from '../services/firestore';
-import { useAuth }        from '../context/AuthContext';
+import { useLibrary }     from '../context/LibraryContext';
 import { useBreakpoint }  from '../hooks/useBreakpoint';
 import SongCard           from '../components/SongCard/SongCard';
 import PlaylistForm       from '../components/Playlist/PlaylistForm';
@@ -21,7 +20,7 @@ const MOODS = [
 const _cache = new Map();
 
 export default function SearchPage() {
-  const { user }      = useAuth();
+  const { playlists } = useLibrary();
   const { isDesktop } = useBreakpoint();
 
   const [query,     setQuery]     = useState('');
@@ -29,7 +28,6 @@ export default function SearchPage() {
   const [loading,   setLoading]   = useState(false);
   const [error,     setError]     = useState(null);
   const [active,    setActive]    = useState(null);
-  const [playlists, setPlaylists] = useState([]);
   const [modalSong, setModalSong] = useState(null); // song to add to playlist
 
   const inputRef = useRef(null);
@@ -39,14 +37,8 @@ export default function SearchPage() {
   useEffect(() => {
     inputRef.current?.focus();
     alive.current = true;
-    // Load playlists for the "add to playlist" modal — reads from localStorage (instant)
-    if (user?.uid) {
-      getUserPlaylists(user.uid)
-        .then(setPlaylists)
-        .catch(() => {});
-    }
     return () => { alive.current = false; clearTimeout(timer.current); };
-  }, [user?.uid]);
+  }, []);
 
   const doSearch = useCallback((q) => {
     clearTimeout(timer.current);
@@ -209,7 +201,6 @@ export default function SearchPage() {
           song={modalSong}
           playlists={playlists}
           onClose={() => setModalSong(null)}
-          onCreated={(newPl) => setPlaylists(p => [newPl, ...p])}
         />
       )}
     </div>

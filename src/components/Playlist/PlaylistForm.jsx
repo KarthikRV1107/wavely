@@ -1,10 +1,12 @@
 // src/components/Playlist/PlaylistForm.jsx — optimistic, instant feedback
 import { useState } from 'react';
 import { useAuth }  from '../../context/AuthContext';
-import { createPlaylist, addSongToPlaylist } from '../../services/firestore';
+import { useLibrary } from '../../context/LibraryContext';
+import { addSongToPlaylist } from '../../services/firestore';
 
 export default function PlaylistForm({ song, playlists, onClose, onCreated }) {
   const { user }            = useAuth();
+  const { adjustPlaylistSongCount, createPlaylistEntry } = useLibrary();
   const [view, setView]     = useState('pick');
   const [name, setName]     = useState('');
   const [done, setDone]     = useState(null);  // name of playlist added to
@@ -13,9 +15,11 @@ export default function PlaylistForm({ song, playlists, onClose, onCreated }) {
   // Pick existing playlist — optimistic, closes immediately
   const handlePick = (pl) => {
     setDone(pl.name);
+    adjustPlaylistSongCount(pl.id, 1);
     // Fire-and-forget — UI already shows success
     addSongToPlaylist(pl.id, song, user?.uid).catch(e => {
       console.error(e);
+      adjustPlaylistSongCount(pl.id, -1);
       setDone(null);
       setErr('Failed to add. Check Firestore rules.');
     });
@@ -29,11 +33,14 @@ export default function PlaylistForm({ song, playlists, onClose, onCreated }) {
     setDone(n);
 
     try {
-      // createPlaylist updates local cache immediately
-      const id = await createPlaylist(user.uid, { name: n });
+      const playlist = await createPlaylistEntry(n);
       // addSongToPlaylist is also optimistic
-      addSongToPlaylist(id, song, user.uid).catch(console.error);
-      onCreated?.({ id, name: n, songCount: 1 });
+      adjustPlaylistSongCount(playlist.id, 1);
+      addSongToPlaylist(playlist.id, song, user.uid).catch((e) => {
+        console.error(e);
+        adjustPlaylistSongCount(playlist.id, -1);
+      });
+      onCreated?.({ ...playlist, songCount: 1 });
       setTimeout(onClose, 800);
     } catch (e) {
       console.error(e);
