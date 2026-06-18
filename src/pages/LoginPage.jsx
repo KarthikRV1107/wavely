@@ -60,9 +60,11 @@ export default function LoginPage() {
   return (
     <div style={{
       minHeight:'100vh', display:'flex', alignItems:'center',
-      justifyContent:'center', background:'#000', padding:20,
+      justifyContent:'center', background:'transparent', padding:20,
     }}>
-      <div style={{ width:'100%', maxWidth:360 }}>
+      <div style={{ width:'100%', maxWidth:380, padding:'28px 24px', borderRadius:24,
+                    background:'linear-gradient(180deg, var(--bg2), var(--bg3))',
+                    border:'1px solid var(--border)', boxShadow:'0 24px 60px rgba(0,0,0,0.22)' }}>
 
         {/* Logo + title */}
         <div style={{ textAlign:'center', marginBottom:36 }}>
@@ -76,9 +78,9 @@ export default function LoginPage() {
               filter:'drop-shadow(0 0 24px rgba(var(--accent-rgb),0.35))',
             }}
           />
-          <h1 style={{ fontSize:26, fontWeight:700, color:'#fff',
+          <h1 style={{ fontSize:26, fontWeight:700, color:'var(--text1)',
                        margin:'0 0 6px', letterSpacing:'-0.02em' }}>Wavely</h1>
-          <p style={{ fontSize:13, color:'#666', margin:0 }}>
+          <p style={{ fontSize:13, color:'var(--text3)', margin:0 }}>
             {mode==='login' ? 'Sign in to continue' : 'Create your account'}
           </p>
         </div>
@@ -109,9 +111,9 @@ export default function LoginPage() {
 
         {/* Divider */}
         <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:18 }}>
-          <div style={{ flex:1, height:1, background:'#222' }}/>
-          <span style={{ fontSize:12, color:'#555' }}>or</span>
-          <div style={{ flex:1, height:1, background:'#222' }}/>
+          <div style={{ flex:1, height:1, background:'var(--border2)' }}/>
+          <span style={{ fontSize:12, color:'var(--text3)' }}>or</span>
+          <div style={{ flex:1, height:1, background:'var(--border2)' }}/>
         </div>
 
         {/* Email + password */}
@@ -145,7 +147,7 @@ export default function LoginPage() {
           {loading ? 'Please wait…' : mode==='login' ? 'Sign in' : 'Create account'}
         </button>
 
-        <p style={{ textAlign:'center', fontSize:13, color:'#666', margin:0 }}>
+        <p style={{ textAlign:'center', fontSize:13, color:'var(--text3)', margin:0 }}>
           {mode==='login' ? "Don't have an account? " : 'Already have an account? '}
           <button onClick={()=>{setMode(m=>m==='login'?'register':'login');setError(null);}} style={{
             background:'none', border:'none', color:'var(--accent2)',

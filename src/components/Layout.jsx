@@ -19,6 +19,68 @@ const NAV = [
 
 const active = (path, exact, pathname) => exact ? pathname===path : pathname.startsWith(path);
 
+function ThemeToggle({ isLight, onToggle, compact = false }) {
+  return (
+    <button onClick={onToggle} title="Toggle theme" style={{
+      padding: compact ? '6px 10px' : '10px 12px',
+      width: compact ? 'auto' : '100%',
+      background:'linear-gradient(180deg, var(--bg2), var(--bg3))',
+      border:'1px solid var(--border)',
+      borderRadius: compact ? 999 : 14,
+      color:'var(--text2)',
+      display:'flex',
+      alignItems:'center',
+      justifyContent:'space-between',
+      gap:10,
+      boxShadow:'0 10px 24px rgba(0,0,0,0.08)',
+    }}>
+      <span style={{ display:'flex', alignItems:'center', gap:10, minWidth:0 }}>
+        <span style={{
+          width: compact ? 24 : 30,
+          height: compact ? 24 : 30,
+          borderRadius:'50%',
+          display:'grid',
+          placeItems:'center',
+          background:'rgba(var(--accent-rgb),0.12)',
+          color:'var(--accent2)',
+          flexShrink:0,
+        }}>
+          {isLight ? <MoonIcon/> : <SunIcon/>}
+        </span>
+        <span style={{ display:'flex', flexDirection:'column', alignItems:'flex-start', minWidth:0 }}>
+          {!compact && <span style={{ fontSize:12, fontWeight:700, color:'var(--text1)' }}>Appearance</span>}
+          <span style={{ fontSize: compact ? 11 : 11, fontWeight:600, color:'var(--text2)' }}>
+            {isLight ? 'Warm Dark' : 'Paper Light'}
+          </span>
+        </span>
+      </span>
+      {!compact && (
+        <span style={{
+          width:44,
+          height:24,
+          borderRadius:999,
+          background:'rgba(var(--accent-rgb),0.15)',
+          border:'1px solid rgba(var(--accent-rgb),0.2)',
+          position:'relative',
+          flexShrink:0,
+        }}>
+          <span style={{
+            position:'absolute',
+            top:2,
+            left: isLight ? 22 : 2,
+            width:18,
+            height:18,
+            borderRadius:'50%',
+            background:'var(--accent)',
+            boxShadow:'0 2px 10px rgba(var(--accent-rgb),0.35)',
+            transition:'left 0.2s ease',
+          }}/>
+        </span>
+      )}
+    </button>
+  );
+}
+
 function Sidebar({ pathname }) {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
@@ -141,19 +203,9 @@ function Sidebar({ pathname }) {
             </svg>
           </button>
         </div>
-        <button onClick={toggleTheme} style={{
-          marginTop:10, width:'100%', padding:'10px 12px',
-          background:'var(--bg2)', border:'1px solid var(--border)',
-          borderRadius:12, color:'var(--text2)', display:'flex',
-          alignItems:'center', justifyContent:'space-between', gap:10,
-        }}>
-          <span style={{ fontSize:12, fontWeight:600 }}>
-            {isLight ? 'Warm Dark Theme' : 'Paper Light Theme'}
-          </span>
-          <span style={{ fontSize:11, color:'var(--accent2)' }}>
-            {isLight ? 'Dark' : 'Light'}
-          </span>
-        </button>
+        <div style={{ marginTop:10 }}>
+          <ThemeToggle isLight={isLight} onToggle={toggleTheme} />
+        </div>
       </div>
     </aside>
   );
@@ -165,7 +217,7 @@ function BottomNav({ pathname }) {
   return (
     <div className="bottom-nav" style={{
       position:'fixed', bottom:0, left:0, right:0, zIndex:90,
-      background:'rgba(16,16,16,0.95)',
+      background:'var(--overlay)',
       backdropFilter:'blur(28px)', WebkitBackdropFilter:'blur(28px)',
       borderTop:'1px solid var(--border)',
       height:'var(--nav-h)', display:'flex', alignItems:'stretch',
@@ -195,13 +247,9 @@ function BottomNav({ pathname }) {
           </button>
         );
       })}
-      <button onClick={toggleTheme} style={{
-        width:56, border:'none', background:'none', color:'var(--text2)',
-        display:'flex', alignItems:'center', justifyContent:'center',
-        fontSize:11, fontWeight:600,
-      }}>
-        {isLight ? 'Dark' : 'Light'}
-      </button>
+      <div style={{ display:'flex', alignItems:'center', paddingRight:8 }}>
+        <ThemeToggle isLight={isLight} onToggle={toggleTheme} compact />
+      </div>
     </div>
   );
 }
@@ -223,7 +271,7 @@ export default function Layout({ children }) {
         {isDesktop && (
           <div style={{
             position:'sticky', top:0, zIndex:30, height:52,
-            background:'rgba(16,16,16,0.85)',
+            background:'var(--overlay-soft)',
             backdropFilter:'blur(20px)', WebkitBackdropFilter:'blur(20px)',
             borderBottom:'1px solid var(--border)',
             display:'flex', alignItems:'center', justifyContent:'space-between',
@@ -233,14 +281,7 @@ export default function Layout({ children }) {
               {NAV.find(n => active(n.path, n.exact, pathname))?.label || ''}
             </span>
             <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-              <button onClick={toggleTheme} style={{
-                padding:'6px 12px', borderRadius:20,
-                background:'rgba(var(--accent-rgb),0.08)',
-                border:'1px solid rgba(var(--accent-rgb),0.15)',
-                color:'var(--accent2)', fontSize:11, fontWeight:600,
-              }}>
-                {isLight ? 'Warm Dark' : 'Paper Light'}
-              </button>
+              <ThemeToggle isLight={isLight} onToggle={toggleTheme} compact />
               <div style={{ display:'flex', alignItems:'center', gap:6, padding:'4px 10px',
                             borderRadius:20, background:'rgba(var(--accent-rgb),0.08)',
                             border:'1px solid rgba(var(--accent-rgb),0.15)' }}>
@@ -267,3 +308,18 @@ export default function Layout({ children }) {
     </div>
   );
 }
+
+const SunIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <circle cx="12" cy="12" r="4"/>
+    <path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/>
+    <path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/>
+    <path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>
+  </svg>
+);
+
+const MoonIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3c0 5 4 9 9 9 .27 0 .53-.01.79-.21z"/>
+  </svg>
+);

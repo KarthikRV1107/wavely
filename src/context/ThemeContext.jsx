@@ -16,6 +16,10 @@ export function ThemeProvider({ children }) {
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
     localStorage.setItem(STORAGE_KEY, theme);
+    const metaTheme = document.querySelector('meta[name="theme-color"]');
+    if (metaTheme) {
+      metaTheme.setAttribute('content', theme === 'paper-light' ? '#f5efe6' : '#101010');
+    }
   }, [theme]);
 
   const toggleTheme = () => {

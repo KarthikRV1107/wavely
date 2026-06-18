@@ -49,7 +49,7 @@ const Player = memo(function Player() {
       <div style={{
         position:'fixed', bottom:0, left:'var(--sidebar-w)', right:0, zIndex:80,
         height:'var(--player-h)',
-        background:'rgba(12,12,20,0.97)',
+        background:'var(--overlay)',
         backdropFilter:'blur(40px)', WebkitBackdropFilter:'blur(40px)',
         borderTop:'1px solid var(--border2)',
         boxShadow:'0 -4px 32px rgba(0,0,0,0.5)',
@@ -137,7 +137,7 @@ const Player = memo(function Player() {
         position:'fixed', bottom:'var(--nav-h)', left:0, right:0, zIndex:80, padding:'0 10px 6px',
       }}>
         <div style={{
-          background:'rgba(18,18,28,0.97)',
+          background:'var(--overlay)',
           backdropFilter:'blur(40px)', WebkitBackdropFilter:'blur(40px)',
           borderRadius:18, border:'1px solid var(--border2)',
           boxShadow:'0 -4px 28px rgba(0,0,0,0.6)', overflow:'hidden',
