@@ -69,7 +69,15 @@
   --green:     #15803d;
 }
 
-html { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+  background: var(--bg);
+}
+
+#root {
+  min-height: 100vh;
+  background: transparent;
+}
 
 body {
   font-family: var(--font-body);
@@ -79,6 +87,7 @@ body {
     linear-gradient(180deg, var(--bg2), var(--bg));
   color: var(--text1);
   min-height: 100vh;
+  margin: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;

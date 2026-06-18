@@ -45,7 +45,7 @@ export const AuthProvider = ({ children }) => {
   if (loading) return (
     <div style={{
       display:'flex', alignItems:'center', justifyContent:'center',
-      minHeight:'100vh', background:'#0a0a0f',
+      minHeight:'100vh', background:'var(--bg)',
     }}>
       <div style={{
         width:32, height:32, borderRadius:'50%',
