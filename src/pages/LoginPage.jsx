@@ -51,8 +51,8 @@ export default function LoginPage() {
 
   const inp = {
     width:'100%', padding:'11px 14px',
-    background:'#121212', border:'1px solid #2a2a2a',
-    borderRadius:6, fontSize:14, color:'#fff',
+    background:'var(--bg)', border:'1px solid var(--border2)',
+    borderRadius:10, fontSize:14, color:'var(--text1)',
     outline:'none', boxSizing:'border-box',
     transition:'border-color 0.15s', fontFamily:'inherit',
   };
@@ -123,24 +123,24 @@ export default function LoginPage() {
             onKeyDown={e=>e.key==='Enter'&&handleEmail()}
             disabled={loading} style={inp}
             onFocus={e=>e.target.style.borderColor='var(--accent)'}
-            onBlur={e=>e.target.style.borderColor='#2a2a2a'}
+            onBlur={e=>e.target.style.borderColor='var(--border2)'}
           />
           <input type="password" placeholder="Password" value={password}
             onChange={e=>setPassword(e.target.value)}
             onKeyDown={e=>e.key==='Enter'&&handleEmail()}
             disabled={loading} style={inp}
             onFocus={e=>e.target.style.borderColor='var(--accent)'}
-            onBlur={e=>e.target.style.borderColor='#2a2a2a'}
+            onBlur={e=>e.target.style.borderColor='var(--border2)'}
           />
         </div>
 
         <button onClick={handleEmail}
           disabled={!email.trim()||!password||loading} style={{
             width:'100%', padding:'12px', marginBottom:18,
-            background: email&&password&&!loading ? 'var(--accent)' : '#1a1a1a',
+            background: email&&password&&!loading ? 'linear-gradient(135deg,var(--accent),var(--gold))' : 'var(--bg4)',
             border:'none', borderRadius:6,
             fontSize:14, fontWeight:700,
-            color: email&&password&&!loading ? '#fff' : '#444',
+            color: email&&password&&!loading ? '#fff' : 'var(--text3)',
             cursor: email&&password&&!loading ? 'pointer' : 'not-allowed',
             transition:'background 0.15s', fontFamily:'inherit',
           }}>

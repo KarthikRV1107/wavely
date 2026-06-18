@@ -118,7 +118,7 @@ export default function Home() {
               style={{ width:'100%', height:'100%', objectFit:'cover', display:'block' }}
             />
             <div style={{ position:'absolute', inset:0,
-              background:'linear-gradient(to top,rgba(10,10,15,.96) 0%,transparent 65%)' }}/>
+              background:'linear-gradient(to top,var(--overlay) 0%,transparent 65%)' }}/>
             <div style={{ position:'absolute', bottom:0, left:0, right:0,
                           padding: isDesktop ? '18px' : '12px' }}>
               <p style={{ fontSize:9, color:'var(--accent3)', letterSpacing:'0.1em',

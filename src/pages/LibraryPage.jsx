@@ -210,13 +210,13 @@ const PlRow = ({ pl, i, onClick }) => (
     <div style={{
       width:46, height:46, borderRadius:10, flexShrink:0,
       background:`linear-gradient(135deg,
-        hsl(${(i*60+240)%360},40%,20%),
-        hsl(${(i*60+270)%360},50%,14%))`,
+        hsl(${(i*24+18)%360},60%,34%),
+        hsl(${(i*24+42)%360},65%,22%))`,
       display:'flex', alignItems:'center', justifyContent:'center',
       border:'1px solid var(--border)',
     }}>
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
-        stroke={`hsl(${(i*60+240)%360},65%,65%)`} strokeWidth="1.5">
+        stroke={`hsl(${(i*24+28)%360},85%,76%)`} strokeWidth="1.5">
         <path d="M9 18V5l12-2v13"/>
         <circle cx="6" cy="18" r="3"/>
         <circle cx="18" cy="16" r="3"/>

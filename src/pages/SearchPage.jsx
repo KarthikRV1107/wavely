@@ -85,7 +85,7 @@ export default function SearchPage() {
       <div style={{
         padding: isDesktop ? '14px 0 12px' : '12px 16px',
         position:'sticky', top: isDesktop ? 52 : 0, zIndex:20,
-        background:'rgba(10,10,15,.95)',
+        background:'var(--overlay)',
         backdropFilter:'blur(20px)', WebkitBackdropFilter:'blur(20px)',
         borderBottom:'1px solid var(--border)',
       }}>
