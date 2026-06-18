@@ -23,7 +23,7 @@ const VolumeControl = () => {
   return (
     <div style={{ display:'flex', alignItems:'center', gap:8 }}>
       <button
-        onClick={() => setVolume(volume > 0 ? 0 : 100)}
+        onClick={() => setVolume(volume > 0 ? 0 : 80)}
         style={{ background:'none', border:'none', cursor:'pointer',
                  color:'#b3b3b3', padding:4, display:'flex',
                  alignItems:'center' }}
