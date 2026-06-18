@@ -59,7 +59,6 @@ export default function ProfilePage() {
         onMouseEnter={e=>e.currentTarget.style.background='var(--bg3)'}
         onMouseLeave={e=>e.currentTarget.style.background='var(--bg2)'}
       >
-        {/* <span style={{ fontSize:18 }}>🚪</span> */}
         <div>
           <p style={{ fontSize:14, fontWeight:500, margin:0, color:'var(--red)' }}>Sign out</p>
           <p style={{ fontSize:11, color:'var(--text3)', margin:'1px 0 0' }}>See you next time</p>
