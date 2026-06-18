@@ -53,8 +53,8 @@ const SongCard = memo(function SongCard({
     }
   }, [user?.uid, liked, song.videoId, song.title, song.channelName, song.thumbnailUrl, song.durationSeconds, likeSong, unlikeSong]);
 
-  const bg = isActive ? 'rgba(124,106,247,0.1)' : hovered ? 'var(--bg3)' : 'transparent';
-  const border = isActive ? '1px solid rgba(124,106,247,0.18)' : '1px solid transparent';
+  const bg = isActive ? 'rgba(var(--accent-rgb),0.1)' : hovered ? 'var(--bg3)' : 'transparent';
+  const border = isActive ? '1px solid rgba(var(--accent-rgb),0.18)' : '1px solid transparent';
 
   return (
     <div

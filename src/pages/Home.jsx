@@ -154,8 +154,8 @@ export default function Home() {
             <h2 style={{ fontFamily:'var(--font-display)', fontSize:14, fontWeight:700,
                          color:'var(--text1)', margin:0 }}>Your Playlists</h2>
             <button onClick={() => setModal('new')} style={{
-              fontSize:11, color:'var(--accent2)', background:'rgba(124,106,247,.1)',
-              border:'1px solid rgba(124,106,247,.2)', borderRadius:20,
+              fontSize:11, color:'var(--accent2)', background:'rgba(var(--accent-rgb),.1)',
+              border:'1px solid rgba(var(--accent-rgb),.2)', borderRadius:20,
               padding:'3px 10px', cursor:'pointer', fontWeight:500,
             }}>+ New</button>
           </div>
@@ -226,7 +226,7 @@ const PL = ({ pl, i, onClick }) => (
   <div onClick={onClick} style={{ flexShrink:0, width:96, cursor:'pointer' }}>
     <div style={{
       width:96, height:96, borderRadius:10, marginBottom:5,
-      background:`linear-gradient(135deg,hsl(${(i*55+240)%360},40%,20%),hsl(${(i*55+280)%360},50%,14%))`,
+      background:`linear-gradient(135deg,hsl(${(i*24+18)%360},60%,34%),hsl(${(i*24+42)%360},65%,22%))`,
       display:'flex', alignItems:'center', justifyContent:'center',
       border:'1px solid var(--border)', transition:'transform .15s',
     }}
@@ -234,7 +234,7 @@ const PL = ({ pl, i, onClick }) => (
       onMouseLeave={e=>e.currentTarget.style.transform='scale(1)'}
     >
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
-        stroke={`hsl(${(i*55+240)%360},65%,65%)`} strokeWidth="1.5">
+        stroke={`hsl(${(i*24+28)%360},85%,76%)`} strokeWidth="1.5">
         <path d="M9 18V5l12-2v13"/>
         <circle cx="6" cy="18" r="3"/>
         <circle cx="18" cy="16" r="3"/>

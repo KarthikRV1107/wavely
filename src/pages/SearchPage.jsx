@@ -7,14 +7,14 @@ import SongCard           from '../components/SongCard/SongCard';
 import PlaylistForm       from '../components/Playlist/PlaylistForm';
 
 const MOODS = [
-  { label:'Chill',   q:'chill lofi music',        c:'#2dd4bf' },
-  { label:'Workout', q:'workout gym motivation',   c:'#f87171' },
-  { label:'Focus',   q:'focus study deep work',    c:'#60a5fa' },
-  { label:'Party',   q:'party hits 2024',          c:'#f472b6' },
-  { label:'Sleep',   q:'sleep calm ambient',       c:'#a78bfa' },
-  { label:'Happy',   q:'happy feel good pop',      c:'#fbbf24' },
-  { label:'Hip-Hop', q:'hip hop rap beats 2024',   c:'#34d399' },
-  { label:'Rock',    q:'rock guitar anthems',       c:'#fb923c' },
+  { label:'Chill',   q:'chill lofi music',         c:'#15803d' },
+  { label:'Workout', q:'workout gym motivation',   c:'#dc2626' },
+  { label:'Focus',   q:'focus study deep work',    c:'#a16207' },
+  { label:'Party',   q:'party hits 2024',          c:'#b91c1c' },
+  { label:'Sleep',   q:'sleep calm ambient',       c:'#78716c' },
+  { label:'Happy',   q:'happy feel good pop',      c:'#ca8a04' },
+  { label:'Hip-Hop', q:'hip hop rap beats 2024',   c:'#65a30d' },
+  { label:'Rock',    q:'rock guitar anthems',      c:'#c2410c' },
 ];
 
 const _cache = new Map();

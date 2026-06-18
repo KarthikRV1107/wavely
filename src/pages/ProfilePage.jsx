@@ -28,7 +28,7 @@ export default function ProfilePage() {
                        border:'2px solid var(--border2)', flexShrink:0 }}/>
           : <div style={{
               width:56, height:56, borderRadius:'50%', flexShrink:0,
-              background:'linear-gradient(135deg,var(--accent),var(--pink))',
+              background:'linear-gradient(135deg,var(--accent),var(--gold))',
               display:'flex', alignItems:'center', justifyContent:'center',
               fontSize:22, fontWeight:700, color:'#fff',
             }}>
@@ -72,7 +72,7 @@ export default function ProfilePage() {
         <div style={{ display:'flex', alignItems:'center', gap:8 }}>
           <img src={LOGO} alt="Wavely"
             style={{ width:22, height:22, objectFit:'contain',
-                     filter:'drop-shadow(0 0 8px rgba(124,106,247,0.5))' }}/>
+                     filter:'drop-shadow(0 0 8px rgba(var(--accent-rgb),0.38))' }}/>
           <span style={{ fontSize:14, fontWeight:700, color:'var(--text2)',
                          fontFamily:'var(--font-display)' }}>Wavely</span>
           <span style={{ color:'var(--text3)', fontSize:14 }}>|</span>

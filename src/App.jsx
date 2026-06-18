@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { LibraryProvider } from './context/LibraryContext';
 import { PlayerProvider }        from './context/PlayerContext';
+import { ThemeProvider } from './context/ThemeContext';
 import Layout from './components/Layout';
 import Player from './components/Player/Player';
 
@@ -19,10 +20,10 @@ const LoginPage   = lazy(() => import('./pages/LoginPage'));
 // Minimal fallback — matches app background, no flash
 const PageFallback = () => (
   <div style={{ minHeight:'60vh', display:'flex', alignItems:'center',
-                justifyContent:'center' }}>
+                  justifyContent:'center' }}>
     <div style={{ width:24, height:24, borderRadius:'50%',
-                  border:'2px solid rgba(124,106,247,0.2)',
-                  borderTopColor:'#7c6af7',
+                  border:'2px solid var(--border2)',
+                  borderTopColor:'var(--accent)',
                   animation:'spin 0.6s linear infinite' }}/>
   </div>
 );
@@ -61,13 +62,15 @@ const AppShell = () => {
 export default function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <LibraryProvider>
-          <PlayerProvider>
-            <AppShell/>
-          </PlayerProvider>
-        </LibraryProvider>
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <LibraryProvider>
+            <PlayerProvider>
+              <AppShell/>
+            </PlayerProvider>
+          </LibraryProvider>
+        </AuthProvider>
+      </ThemeProvider>
     </BrowserRouter>
   );
 }

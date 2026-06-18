@@ -2,6 +2,7 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth }   from '../context/AuthContext';
 import { useCurrentSong, useIsPlaying } from '../context/PlayerContext';
+import { useTheme } from '../context/ThemeContext';
 import { useBreakpoint } from '../hooks/useBreakpoint';
 import LOGO from '../utils/logoBase64';
 
@@ -21,6 +22,7 @@ const active = (path, exact, pathname) => exact ? pathname===path : pathname.sta
 function Sidebar({ pathname }) {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const { isLight, toggleTheme } = useTheme();
   const currentSong = useCurrentSong();
   const isPlaying   = useIsPlaying();
 
@@ -31,7 +33,7 @@ function Sidebar({ pathname }) {
         <div style={{ display:'flex', alignItems:'center', gap:10 }}>
           <img src={LOGO} alt="Wavely"
             style={{ width:36, height:36, objectFit:'contain',
-                     filter:"drop-shadow(0 0 12px rgba(124,106,247,0.5))" }}/>
+                     filter:"drop-shadow(0 0 12px rgba(var(--accent-rgb),0.38))" }}/>
           <span style={{
             fontFamily:'var(--font-display)', fontSize:20, fontWeight:800,
             letterSpacing:'-0.02em',
@@ -51,8 +53,8 @@ function Sidebar({ pathname }) {
             <button key={path} onClick={() => navigate(path)} style={{
               display:'flex', alignItems:'center', gap:12, width:'100%',
               padding:'11px 14px', marginBottom:2,
-              background: act ? 'rgba(124,106,247,0.12)' : 'transparent',
-              border:`1px solid ${act ? 'rgba(124,106,247,0.2)' : 'transparent'}`,
+              background: act ? 'rgba(var(--accent-rgb),0.12)' : 'transparent',
+              border:`1px solid ${act ? 'rgba(var(--accent-rgb),0.2)' : 'transparent'}`,
               borderRadius:12, textAlign:'left', cursor:'pointer', transition:'all 0.18s',
             }}
               onMouseEnter={e => !act && (e.currentTarget.style.background='var(--bg3)')}
@@ -73,8 +75,8 @@ function Sidebar({ pathname }) {
       {/* Now playing mini */}
       {currentSong && (
         <div style={{ margin:'0 12px 12px', padding:'12px 14px',
-                      background:'rgba(124,106,247,0.08)',
-                      border:'1px solid rgba(124,106,247,0.15)', borderRadius:14 }}>
+                      background:'rgba(var(--accent-rgb),0.08)',
+                      border:'1px solid rgba(var(--accent-rgb),0.15)', borderRadius:14 }}>
           <p style={{ fontSize:10, color:'var(--accent3)', letterSpacing:'0.08em',
                       fontWeight:700, marginBottom:8 }}>NOW PLAYING</p>
           <div style={{ display:'flex', alignItems:'center', gap:10 }}>
@@ -114,7 +116,7 @@ function Sidebar({ pathname }) {
                 style={{ width:32, height:32, borderRadius:'50%', flexShrink:0 }}/>
             : <div style={{
                 width:32, height:32, borderRadius:'50%', flexShrink:0,
-                background:'linear-gradient(135deg, var(--accent), var(--pink))',
+                background:'linear-gradient(135deg, var(--accent), var(--gold))',
                 display:'flex', alignItems:'center', justifyContent:'center',
                 fontSize:13, fontWeight:700, color:'#fff',
               }}>{(user?.displayName?.[0]||user?.email?.[0]||'?').toUpperCase()}</div>
@@ -139,6 +141,19 @@ function Sidebar({ pathname }) {
             </svg>
           </button>
         </div>
+        <button onClick={toggleTheme} style={{
+          marginTop:10, width:'100%', padding:'10px 12px',
+          background:'var(--bg2)', border:'1px solid var(--border)',
+          borderRadius:12, color:'var(--text2)', display:'flex',
+          alignItems:'center', justifyContent:'space-between', gap:10,
+        }}>
+          <span style={{ fontSize:12, fontWeight:600 }}>
+            {isLight ? 'Warm Dark Theme' : 'Paper Light Theme'}
+          </span>
+          <span style={{ fontSize:11, color:'var(--accent2)' }}>
+            {isLight ? 'Dark' : 'Light'}
+          </span>
+        </button>
       </div>
     </aside>
   );
@@ -146,10 +161,11 @@ function Sidebar({ pathname }) {
 
 function BottomNav({ pathname }) {
   const navigate = useNavigate();
+  const { isLight, toggleTheme } = useTheme();
   return (
     <div className="bottom-nav" style={{
       position:'fixed', bottom:0, left:0, right:0, zIndex:90,
-      background:'rgba(10,10,15,0.95)',
+      background:'rgba(16,16,16,0.95)',
       backdropFilter:'blur(28px)', WebkitBackdropFilter:'blur(28px)',
       borderTop:'1px solid var(--border)',
       height:'var(--nav-h)', display:'flex', alignItems:'stretch',
@@ -166,7 +182,7 @@ function BottomNav({ pathname }) {
             <div style={{
               width:44, height:28, display:'flex', alignItems:'center', justifyContent:'center',
               borderRadius:10, transition:'background 0.18s',
-              background: act ? 'rgba(124,106,247,0.15)' : 'transparent',
+              background: act ? 'rgba(var(--accent-rgb),0.15)' : 'transparent',
             }}>{icon(act)}</div>
             <span style={{
               fontSize:10, fontWeight:act?600:400, letterSpacing:'0.02em',
@@ -179,6 +195,13 @@ function BottomNav({ pathname }) {
           </button>
         );
       })}
+      <button onClick={toggleTheme} style={{
+        width:56, border:'none', background:'none', color:'var(--text2)',
+        display:'flex', alignItems:'center', justifyContent:'center',
+        fontSize:11, fontWeight:600,
+      }}>
+        {isLight ? 'Dark' : 'Light'}
+      </button>
     </div>
   );
 }
@@ -186,6 +209,7 @@ function BottomNav({ pathname }) {
 export default function Layout({ children }) {
   const { pathname }  = useLocation();
   const currentSong = useCurrentSong();
+  const { isLight, toggleTheme } = useTheme();
   const { isDesktop } = useBreakpoint();
 
   const bottomPad = currentSong
@@ -199,7 +223,7 @@ export default function Layout({ children }) {
         {isDesktop && (
           <div style={{
             position:'sticky', top:0, zIndex:30, height:52,
-            background:'rgba(10,10,15,0.85)',
+            background:'rgba(16,16,16,0.85)',
             backdropFilter:'blur(20px)', WebkitBackdropFilter:'blur(20px)',
             borderBottom:'1px solid var(--border)',
             display:'flex', alignItems:'center', justifyContent:'space-between',
@@ -208,16 +232,26 @@ export default function Layout({ children }) {
             <span style={{ fontSize:13, color:'var(--text3)' }}>
               {NAV.find(n => active(n.path, n.exact, pathname))?.label || ''}
             </span>
-            <div style={{ display:'flex', alignItems:'center', gap:6, padding:'4px 10px',
-                          borderRadius:20, background:'rgba(124,106,247,0.08)',
-                          border:'1px solid rgba(124,106,247,0.15)' }}>
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
-                stroke="var(--accent2)" strokeWidth="2">
-                <rect x="2" y="3" width="20" height="14" rx="2"/>
-                <line x1="8" y1="21" x2="16" y2="21"/>
-                <line x1="12" y1="17" x2="12" y2="21"/>
-              </svg>
-              <span style={{ fontSize:11, color:'var(--accent2)', fontWeight:500 }}>Desktop</span>
+            <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+              <button onClick={toggleTheme} style={{
+                padding:'6px 12px', borderRadius:20,
+                background:'rgba(var(--accent-rgb),0.08)',
+                border:'1px solid rgba(var(--accent-rgb),0.15)',
+                color:'var(--accent2)', fontSize:11, fontWeight:600,
+              }}>
+                {isLight ? 'Warm Dark' : 'Paper Light'}
+              </button>
+              <div style={{ display:'flex', alignItems:'center', gap:6, padding:'4px 10px',
+                            borderRadius:20, background:'rgba(var(--accent-rgb),0.08)',
+                            border:'1px solid rgba(var(--accent-rgb),0.15)' }}>
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
+                  stroke="var(--accent2)" strokeWidth="2">
+                  <rect x="2" y="3" width="20" height="14" rx="2"/>
+                  <line x1="8" y1="21" x2="16" y2="21"/>
+                  <line x1="12" y1="17" x2="12" y2="21"/>
+                </svg>
+                <span style={{ fontSize:11, color:'var(--accent2)', fontWeight:500 }}>Desktop</span>
+              </div>
             </div>
           </div>
         )}

@@ -49,8 +49,8 @@ export const AuthProvider = ({ children }) => {
     }}>
       <div style={{
         width:32, height:32, borderRadius:'50%',
-        border:'3px solid rgba(124,106,247,0.2)',
-        borderTopColor:'#7c6af7',
+        border:'3px solid var(--border2)',
+        borderTopColor:'var(--accent)',
         animation:'spin 0.7s linear infinite',
       }}/>
     </div>

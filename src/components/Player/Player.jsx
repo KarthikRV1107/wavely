@@ -59,7 +59,7 @@ const Player = memo(function Player() {
         <div style={{ display:'flex', alignItems:'center', gap:12, width:240, flexShrink:0 }}>
           <img src={currentSong.thumbnailUrl} alt={currentSong.title}
             style={{ width:48, height:48, borderRadius:10, objectFit:'cover', flexShrink:0,
-                     boxShadow: isPlaying?'0 0 16px rgba(124,106,247,0.4)':'none',
+                     boxShadow: isPlaying?'0 0 16px rgba(var(--accent-rgb),0.32)':'none',
                      transition:'box-shadow 0.4s' }}/>
           <div style={{ minWidth:0 }}>
             <p style={{ fontSize:13, fontWeight:600, color:'var(--text1)', margin:0,
@@ -103,7 +103,7 @@ const Player = memo(function Player() {
             }}>
               <div style={{
                 position:'absolute', left:0, top:0, bottom:0, width:`${pct}%`,
-                background:'linear-gradient(90deg,var(--accent),var(--pink))',
+                background:'linear-gradient(90deg,var(--accent),var(--gold))',
                 borderRadius:2, transition:'width 0.8s linear',
               }}/>
             </div>
@@ -144,13 +144,13 @@ const Player = memo(function Player() {
         }}>
           <div onClick={handleSeek} style={{ height:3, background:'var(--bg4)', cursor:'pointer' }}>
             <div style={{ height:'100%', width:`${pct}%`,
-                          background:'linear-gradient(90deg,var(--accent),var(--pink))',
+                          background:'linear-gradient(90deg,var(--accent),var(--gold))',
                           transition:'width 0.8s linear' }}/>
           </div>
           <div style={{ display:'flex', alignItems:'center', gap:10, padding:'9px 12px 10px' }}>
             <img src={currentSong.thumbnailUrl} alt=""
               style={{ width:42, height:42, borderRadius:9, objectFit:'cover', flexShrink:0,
-                       boxShadow:isPlaying?'0 0 12px rgba(124,106,247,0.4)':'none' }}/>
+                       boxShadow:isPlaying?'0 0 12px rgba(var(--accent-rgb),0.32)':'none' }}/>
             <div style={{ flex:1, minWidth:0 }}>
               <p style={{ fontSize:12, fontWeight:600, color:'var(--text1)', margin:0,
                           whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>
@@ -196,10 +196,10 @@ const CB = ({ onClick, children, disabled, size=36, primary }) => (
   <button onClick={onClick} disabled={disabled} style={{
     width:size, height:size, borderRadius:'50%', border:'none', flexShrink:0,
     display:'flex', alignItems:'center', justifyContent:'center',
-    background: primary ? 'linear-gradient(135deg,var(--accent),#5b4fcf)' : 'transparent',
+    background: primary ? 'linear-gradient(135deg,var(--accent),var(--gold))' : 'transparent',
     color: disabled ? 'var(--text3)' : 'var(--text1)',
     cursor: disabled ? 'not-allowed' : 'pointer', transition:'all 0.12s',
-    boxShadow: primary ? '0 4px 14px rgba(124,106,247,0.35)' : 'none',
+    boxShadow: primary ? '0 4px 14px rgba(var(--accent-rgb),0.28)' : 'none',
   }}>{children}</button>
 );
 

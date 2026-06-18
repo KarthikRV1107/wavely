@@ -146,9 +146,9 @@ export default function PlaylistPage() {
         <div style={{ display:'flex', gap:16, alignItems:'flex-end' }}>
           <div style={{
             width:88, height:88, borderRadius:14, flexShrink:0,
-            background:'linear-gradient(135deg,var(--accent),#5b4fcf,var(--pink))',
+            background:'linear-gradient(135deg,var(--accent),var(--gold),var(--pink))',
             display:'flex', alignItems:'center', justifyContent:'center',
-            boxShadow:'0 8px 28px rgba(124,106,247,0.35)',
+            boxShadow:'0 8px 28px rgba(var(--accent-rgb),0.28)',
           }}>
             <svg width="36" height="36" viewBox="0 0 24 24" fill="none"
               stroke="rgba(255,255,255,0.9)" strokeWidth="1.4">
@@ -174,11 +174,11 @@ export default function PlaylistPage() {
               <button onClick={handlePlayAll} disabled={!songs.length} style={{
                 display:'flex', alignItems:'center', gap:6,
                 padding:'8px 18px',
-                background:'linear-gradient(135deg,var(--accent),#5b4fcf)',
+                background:'linear-gradient(135deg,var(--accent),var(--gold))',
                 border:'none', borderRadius:50, fontSize:12, fontWeight:700,
                 color:'#fff', cursor:songs.length?'pointer':'not-allowed',
                 opacity:songs.length?1:0.5,
-                boxShadow:'0 4px 16px rgba(124,106,247,0.4)',
+                boxShadow:'0 4px 16px rgba(var(--accent-rgb),0.3)',
                 fontFamily:'inherit',
               }}>
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="white">

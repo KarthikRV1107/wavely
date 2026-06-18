@@ -56,10 +56,9 @@ export function LibraryProvider({ children }) {
 
   const createPlaylistEntry = useCallback(async (name) => {
     if (!uid) throw new Error('User not available');
-    const id = await createPlaylist(uid, { name });
-    const next = getCachedUserPlaylists(uid);
-    setPlaylists([...next]);
-    return next.find(p => p.id === id) ?? { id, name, songCount: 0 };
+    const playlist = await createPlaylist(uid, { name });
+    setPlaylists((current) => [playlist, ...current]);
+    return playlist;
   }, [uid]);
 
   const adjustPlaylistSongCount = useCallback((playlistId, delta) => {

@@ -9,18 +9,16 @@
 // On Firestore read: result written back to localStorage for next session
 
 import {
-  collection, doc, addDoc, setDoc, getDoc, getDocs,
+  collection, doc, setDoc, getDoc, getDocs,
   updateDoc, deleteDoc, query, where,
   serverTimestamp, increment,
 } from 'firebase/firestore';
 import { db } from './firebase';
 
 // ── localStorage helpers ──────────────────────────────────
-const LS_TTL = 7 * 24 * 60 * 60 * 1000; // 7 days
-
 const lsSet = (key, data) => {
   try {
-    localStorage.setItem(key, JSON.stringify({ data, exp: Date.now() + LS_TTL }));
+    localStorage.setItem(key, JSON.stringify({ data }));
   } catch {}
 };
 
@@ -29,7 +27,7 @@ const lsGet = (key) => {
     const raw = localStorage.getItem(key);
     if (!raw) return null;
     const { data, exp } = JSON.parse(raw);
-    if (Date.now() > exp) { localStorage.removeItem(key); return null; }
+    if (exp && Date.now() > exp) { localStorage.removeItem(key); return null; }
     return data;
   } catch { return null; }
 };
@@ -189,12 +187,14 @@ export const getCachedUserPlaylists = (userId) => {
 };
 
 export const createPlaylist = async (userId, { name, description = '' }) => {
-  const tempId = `temp_${Date.now()}`;
+  const playlistRef = doc(collection(db, 'playlists'));
+  const playlistId = playlistRef.id;
   const newPl  = {
-    id: tempId, userId, name, description,
+    id: playlistId, userId, name, description,
     songCount: 0, isPublic: false,
     createdAt: { seconds: Date.now() / 1000 },
     updatedAt: { seconds: Date.now() / 1000 },
+    coverImageUrl: '',
   };
 
   // Update in-memory and localStorage immediately
@@ -203,21 +203,19 @@ export const createPlaylist = async (userId, { name, description = '' }) => {
   PL_CACHE.set(userId, updated);
   lsSet(`wv_pls_${userId}`, updated);
 
-  // Write to Firestore
-  const ref = await addDoc(collection(db, 'playlists'), {
+  // Write to Firestore in background using the already-known ID.
+  setDoc(playlistRef, {
     userId, name, description,
     coverImageUrl: '', isPublic: false, songCount: 0,
     createdAt: serverTimestamp(), updatedAt: serverTimestamp(),
+  }).catch(err => {
+    console.error('createPlaylist:', err);
+    const rollback = (PL_CACHE.get(userId) ?? []).filter(p => p.id !== playlistId);
+    PL_CACHE.set(userId, rollback);
+    lsSet(`wv_pls_${userId}`, rollback);
   });
 
-  // Replace temp ID with real ID everywhere
-  const withRealId = (PL_CACHE.get(userId) ?? []).map(p =>
-    p.id === tempId ? { ...p, id: ref.id } : p
-  );
-  PL_CACHE.set(userId, withRealId);
-  lsSet(`wv_pls_${userId}`, withRealId);
-
-  return ref.id;
+  return newPl;
 };
 
 export const getPlaylist = async (id) => {
@@ -255,8 +253,9 @@ export const deletePlaylist = async (id, userId) => {
 // ─────────────────────────────────────────────────────────
 export const addSongToPlaylist = async (playlistId, song, userId) => {
   const local = PLS_CACHE.get(playlistId) ?? [];
+  const songRef = doc(collection(db, 'playlist_songs'));
   const songObj = {
-    id:              `temp_${Date.now()}`,
+    id:              songRef.id,
     playlistId,
     videoId:         song.videoId      ?? '',
     title:           song.title        ?? '',
@@ -283,7 +282,7 @@ export const addSongToPlaylist = async (playlistId, song, userId) => {
   }
 
   // Background Firestore writes
-  addDoc(collection(db, 'playlist_songs'), {
+  setDoc(songRef, {
     playlistId,
     videoId:         songObj.videoId,
     title:           songObj.title,
@@ -292,11 +291,6 @@ export const addSongToPlaylist = async (playlistId, song, userId) => {
     durationSeconds: songObj.durationSeconds,
     orderIndex:      songObj.orderIndex,
     addedAt:         serverTimestamp(),
-  }).then(ref => {
-    const songs = PLS_CACHE.get(playlistId) ?? [];
-    const fixed = songs.map(s => s.id === songObj.id ? { ...s, id: ref.id } : s);
-    PLS_CACHE.set(playlistId, fixed);
-    lsSet(`wv_plsongs_${playlistId}`, fixed);
   }).catch(console.error);
 
   updateDoc(doc(db, 'playlists', playlistId), {

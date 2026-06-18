@@ -52,10 +52,10 @@ export default function LibraryPage() {
           <button onClick={() => setModal(true)} style={{
             display:'flex', alignItems:'center', gap:6,
             padding:'7px 16px',
-            background:'linear-gradient(135deg,var(--accent),#5b4fcf)',
+            background:'linear-gradient(135deg,var(--accent),var(--gold))',
             border:'none', borderRadius:20, fontSize:12, fontWeight:700,
             color:'#fff', cursor:'pointer',
-            boxShadow:'0 4px 14px rgba(124,106,247,0.35)',
+            boxShadow:'0 4px 14px rgba(var(--accent-rgb),0.28)',
           }}>
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
               stroke="white" strokeWidth="2.5">
@@ -176,7 +176,7 @@ export default function LibraryPage() {
                 disabled={!name.trim() || saving} style={{
                   flex:2, padding:'10px',
                   background: name.trim()
-                    ? 'linear-gradient(135deg,var(--accent),#5b4fcf)'
+                    ? 'linear-gradient(135deg,var(--accent),var(--gold))'
                     : 'var(--bg4)',
                   border:'none', borderRadius:10,
                   fontSize:13, fontWeight:700,
@@ -184,7 +184,7 @@ export default function LibraryPage() {
                   cursor: name.trim() && !saving ? 'pointer' : 'not-allowed',
                   fontFamily:'inherit',
                   boxShadow: name.trim()
-                    ? '0 4px 14px rgba(124,106,247,0.3)' : 'none',
+                    ? '0 4px 14px rgba(var(--accent-rgb),0.24)' : 'none',
                 }}>
                 {saving ? 'Creating…' : 'Create'}
               </button>

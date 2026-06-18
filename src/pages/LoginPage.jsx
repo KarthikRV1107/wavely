@@ -73,7 +73,7 @@ export default function LoginPage() {
               width:72, height:72,
               objectFit:'contain',
               marginBottom:14,
-              filter:'drop-shadow(0 0 24px rgba(124,106,247,0.5))',
+              filter:'drop-shadow(0 0 24px rgba(var(--accent-rgb),0.35))',
             }}
           />
           <h1 style={{ fontSize:26, fontWeight:700, color:'#fff',
@@ -120,14 +120,14 @@ export default function LoginPage() {
             onChange={e=>setEmail(e.target.value)}
             onKeyDown={e=>e.key==='Enter'&&handleEmail()}
             disabled={loading} style={inp}
-            onFocus={e=>e.target.style.borderColor='#7c6af7'}
+            onFocus={e=>e.target.style.borderColor='var(--accent)'}
             onBlur={e=>e.target.style.borderColor='#2a2a2a'}
           />
           <input type="password" placeholder="Password" value={password}
             onChange={e=>setPassword(e.target.value)}
             onKeyDown={e=>e.key==='Enter'&&handleEmail()}
             disabled={loading} style={inp}
-            onFocus={e=>e.target.style.borderColor='#7c6af7'}
+            onFocus={e=>e.target.style.borderColor='var(--accent)'}
             onBlur={e=>e.target.style.borderColor='#2a2a2a'}
           />
         </div>
@@ -135,7 +135,7 @@ export default function LoginPage() {
         <button onClick={handleEmail}
           disabled={!email.trim()||!password||loading} style={{
             width:'100%', padding:'12px', marginBottom:18,
-            background: email&&password&&!loading ? '#7c6af7' : '#1a1a1a',
+            background: email&&password&&!loading ? 'var(--accent)' : '#1a1a1a',
             border:'none', borderRadius:6,
             fontSize:14, fontWeight:700,
             color: email&&password&&!loading ? '#fff' : '#444',
@@ -148,7 +148,7 @@ export default function LoginPage() {
         <p style={{ textAlign:'center', fontSize:13, color:'#666', margin:0 }}>
           {mode==='login' ? "Don't have an account? " : 'Already have an account? '}
           <button onClick={()=>{setMode(m=>m==='login'?'register':'login');setError(null);}} style={{
-            background:'none', border:'none', color:'#a78bfa',
+            background:'none', border:'none', color:'var(--accent2)',
             fontSize:13, fontWeight:600, cursor:'pointer', padding:0, fontFamily:'inherit',
           }}>
             {mode==='login' ? 'Sign up' : 'Sign in'}

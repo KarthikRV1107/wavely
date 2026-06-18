@@ -23,7 +23,7 @@ export default function PlaylistForm({ song, playlists, onClose, onCreated }) {
       setDone(null);
       setErr('Failed to add. Check Firestore rules.');
     });
-    setTimeout(onClose, 800);
+    setTimeout(onClose, 250);
   };
 
   // Create new playlist — optimistic
@@ -41,7 +41,7 @@ export default function PlaylistForm({ song, playlists, onClose, onCreated }) {
         adjustPlaylistSongCount(playlist.id, -1);
       });
       onCreated?.({ ...playlist, songCount: 1 });
-      setTimeout(onClose, 800);
+      setTimeout(onClose, 250);
     } catch (e) {
       console.error(e);
       setDone(null);
@@ -64,7 +64,7 @@ export default function PlaylistForm({ song, playlists, onClose, onCreated }) {
           <p style={{ fontSize:15, fontWeight:700, color:'#fff', margin:'0 0 4px' }}>
             Added to
           </p>
-          <p style={{ fontSize:13, color:'#a78bfa', margin:0 }}>{done}</p>
+          <p style={{ fontSize:13, color:'var(--accent2)', margin:0 }}>{done}</p>
         </div>
       </div>
     );
@@ -172,7 +172,7 @@ export default function PlaylistForm({ song, playlists, onClose, onCreated }) {
                 borderRadius:6, fontSize:14, color:'#fff',
                 outline:'none', boxSizing:'border-box', fontFamily:'inherit',
               }}
-              onFocus={e=>e.target.style.borderColor='#7c6af7'}
+              onFocus={e=>e.target.style.borderColor='var(--accent)'}
               onBlur={e=>e.target.style.borderColor='transparent'}
             />
             <div style={{ display:'flex', gap:8 }}>
@@ -183,7 +183,7 @@ export default function PlaylistForm({ song, playlists, onClose, onCreated }) {
               }}>Back</button>
               <button onClick={handleCreate} disabled={!name.trim()} style={{
                 flex:2, padding:'10px',
-                background: name.trim() ? '#7c6af7' : '#3e3e3e',
+                background: name.trim() ? 'var(--accent)' : '#3e3e3e',
                 border:'none', borderRadius:20,
                 color: name.trim() ? '#fff' : '#555',
                 fontSize:13, fontWeight:700,
