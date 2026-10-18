@@ -107,7 +107,7 @@ const SongCard = memo(function SongCard({
         </span>
       )}
 
-      <div style={{ display:'flex', gap:1, flexShrink:0,
+      <div className="song-card-actions" style={{ display:'flex', gap:1, flexShrink:0,
                     opacity:hovered||isActive||liked?1:0,
                     transition:'opacity 0.1s' }}
            onClick={e=>e.stopPropagation()}>

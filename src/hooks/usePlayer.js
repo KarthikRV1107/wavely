@@ -2,6 +2,7 @@
 import { useEffect, useRef, useCallback } from 'react';
 import {
   useCurrentSong,
+  useCurrentTime,
   useIsPlaying,
   usePlayerActions,
   useVolume,
@@ -10,11 +11,65 @@ import {
 export const useYouTubePlayer = () => {
   const currentSong = useCurrentSong();
   const isPlaying = useIsPlaying();
+  const currentTime = useCurrentTime();
   const volume = useVolume();
   const { setTime, nextSong, dispatch, playerRef } = usePlayerActions();
+  const { prevSong } = usePlayerActions();
 
   const intervalRef  = useRef(null);
   const containerRef = useRef(null);
+
+  useEffect(() => {
+    const mediaSession = navigator.mediaSession;
+    if (!mediaSession || !currentSong) return;
+
+    if (typeof window.MediaMetadata === 'function') {
+      mediaSession.metadata = new window.MediaMetadata({
+        title: currentSong.title || 'Wavely',
+        artist: currentSong.channelName || 'Wavely',
+        album: 'Wavely',
+        artwork: currentSong.thumbnailUrl ? [
+          { src: currentSong.thumbnailUrl, sizes: '512x512', type: 'image/jpeg' },
+        ] : [],
+      });
+    }
+
+    const actions = {
+      play: () => dispatch({ type:'SET_PLAY', v:true }),
+      pause: () => dispatch({ type:'SET_PLAY', v:false }),
+      previoustrack: () => prevSong(),
+      nexttrack: () => nextSong(),
+      seekto: (event) => {
+        if (Number.isFinite(event.seekTime)) {
+          playerRef.current?.seekTo?.(event.seekTime, true);
+          setTime(Math.floor(event.seekTime));
+        }
+      },
+    };
+    Object.entries(actions).forEach(([action, handler]) => {
+      try { mediaSession.setActionHandler(action, handler); } catch (_) { /* Unsupported action */ }
+    });
+
+    return () => {
+      Object.keys(actions).forEach((action) => {
+        try { mediaSession.setActionHandler(action, null); } catch (_) { /* Unsupported action */ }
+      });
+    };
+  }, [currentSong?.videoId, nextSong, prevSong, playerRef, setTime, dispatch]);
+
+  useEffect(() => {
+    if (!navigator.mediaSession || !currentSong) return;
+    navigator.mediaSession.playbackState = isPlaying ? 'playing' : 'paused';
+    if (currentSong.durationSeconds > 0 && Number.isFinite(currentTime)) {
+      try {
+        navigator.mediaSession.setPositionState({
+          duration: currentSong.durationSeconds,
+          playbackRate: 1,
+          position: Math.min(currentTime, currentSong.durationSeconds),
+        });
+      } catch (_) { /* Position state is optional */ }
+    }
+  }, [currentSong, currentTime, isPlaying]);
 
   const onStateChange = useCallback((event) => {
     const YT = window.YT?.PlayerState;
