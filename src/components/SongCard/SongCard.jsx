@@ -17,7 +17,7 @@ const SongCard = memo(function SongCard({
   song, queue=[], queueIndex=0, isLiked:initLiked,
   onAddToPlaylist, showIndex=false, style={},
 }) {
-  const { playSong, togglePlay } = usePlayerActions();
+  const { playSong, togglePlay, playerRef } = usePlayerActions();
   const currentSong = useCurrentSong();
   const isPlaying = useIsPlaying();
   const { user } = useAuth();
@@ -31,10 +31,17 @@ const SongCard = memo(function SongCard({
   const isActive = currentSong?.videoId === song.videoId;
   const isPlays  = isActive && isPlaying;
 
-  // Stable ref — only recreate if song/queue identity changes
+  // Send playback commands in the tap handler to preserve mobile user activation.
   const handlePlay = useCallback(() => {
-    isActive ? togglePlay() : playSong(song, queue.length ? queue : [song], queueIndex);
-  }, [isActive, song.videoId, queueIndex]); // minimal deps
+    if (isActive) {
+      if (isPlaying) playerRef.current?.pauseVideo?.();
+      else playerRef.current?.playVideo?.();
+      togglePlay();
+      return;
+    }
+    playerRef.current?.loadVideoById?.(song.videoId);
+    playSong(song, queue.length ? queue : [song], queueIndex);
+  }, [isActive, isPlaying, song, queue, queueIndex, playSong, togglePlay, playerRef]);
 
   // No await — addLikedSong/removeLikedSong are already fire-and-forget
   const handleLike = useCallback((e) => {

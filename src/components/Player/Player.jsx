@@ -20,7 +20,7 @@ const Player = memo(function Player() {
   const currentTime = useCurrentTime();
   const volume = useVolume();
   const { queue, queueIndex } = useQueueState();
-  const { togglePlay, nextSong, prevSong, setVolume }
+  const { togglePlay, nextSong, prevSong, setVolume, playerRef }
     = usePlayerActions();
   const { containerRef, seekTo } = useYouTubePlayer();
   const { isDesktop } = useBreakpoint();
@@ -37,6 +37,28 @@ const Player = memo(function Player() {
     ? (currentTime / currentSong.durationSeconds) * 100 : 0;
   const hasPrev = queueIndex > 0;
   const hasNext = queueIndex < queue.length - 1;
+
+  const handleTogglePlay = () => {
+    if (isPlaying) playerRef.current?.pauseVideo?.();
+    else playerRef.current?.playVideo?.();
+    togglePlay();
+  };
+  const handlePrevious = () => {
+    if (!hasPrev) return;
+    const song = queue[queueIndex - 1];
+    if (song?.videoId) playerRef.current?.loadVideoById?.(song.videoId);
+    prevSong();
+  };
+  const handleNext = () => {
+    if (!hasNext) return;
+    const song = queue[queueIndex + 1];
+    if (song?.videoId) playerRef.current?.loadVideoById?.(song.videoId);
+    nextSong();
+  };
+  const handleVolume = (value) => {
+    playerRef.current?.setVolume?.(value);
+    setVolume(value);
+  };
 
   const handleSeek = (e) => {
     const r = e.currentTarget.getBoundingClientRect();
@@ -76,18 +98,18 @@ const Player = memo(function Player() {
         {/* Controls + seekbar */}
         <div style={{ flex:1, display:'flex', flexDirection:'column', gap:6, alignItems:'center' }}>
           <div style={{ display:'flex', alignItems:'center', gap:14 }}>
-            <CB onClick={prevSong} disabled={!hasPrev} size={30}>
+            <CB onClick={handlePrevious} disabled={!hasPrev} size={30}>
               <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
                 <polygon points="19,20 9,12 19,4"/><rect x="5" y="4" width="2" height="16"/>
               </svg>
             </CB>
-            <CB onClick={togglePlay} size={42} primary>
+            <CB onClick={handleTogglePlay} size={42} primary>
               {isPlaying
                 ? <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
                 : <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style={{marginLeft:2}}><polygon points="5,3 19,12 5,21"/></svg>
               }
             </CB>
-            <CB onClick={nextSong} disabled={!hasNext} size={30}>
+            <CB onClick={handleNext} disabled={!hasNext} size={30}>
               <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
                 <polygon points="5,4 15,12 5,20"/><rect x="17" y="4" width="2" height="16"/>
               </svg>
@@ -115,13 +137,13 @@ const Player = memo(function Player() {
 
         {/* Volume */}
         <div style={{ display:'flex', alignItems:'center', gap:8, width:160, flexShrink:0 }}>
-          <button onClick={()=>setVolume(volume>0?0:80)} style={{
+          <button onClick={()=>handleVolume(volume>0?0:80)} style={{
             background:'none', border:'none', color:'var(--text3)', cursor:'pointer', padding:2,
           }}>
             <VolIco muted={volume===0}/>
           </button>
           <input type="range" min="0" max="100" value={volume} step="1"
-            onChange={e=>setVolume(Number(e.target.value))}
+            onChange={e=>handleVolume(Number(e.target.value))}
             style={{ flex:1, accentColor:'var(--accent)', cursor:'pointer', height:4 }}/>
           <span style={{ fontSize:10, color:'var(--text3)', minWidth:26 }}>{volume}%</span>
         </div>
@@ -162,18 +184,22 @@ const Player = memo(function Player() {
               </p>
             </div>
             <div style={{ display:'flex', alignItems:'center', gap:4, flexShrink:0 }}>
-              <CB onClick={prevSong} disabled={!hasPrev} size={28}>
+              <CB onClick={()=>handleVolume(volume>0?0:80)} size={28}
+                ariaLabel={volume>0?'Mute':'Unmute'}>
+                <VolIco muted={volume===0}/>
+              </CB>
+              <CB onClick={handlePrevious} disabled={!hasPrev} size={28}>
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
                   <polygon points="19,20 9,12 19,4"/><rect x="5" y="4" width="2" height="16"/>
                 </svg>
               </CB>
-              <CB onClick={togglePlay} size={40} primary>
+              <CB onClick={handleTogglePlay} size={40} primary>
                 {isPlaying
                   ? <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
                   : <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style={{marginLeft:1}}><polygon points="5,3 19,12 5,21"/></svg>
                 }
               </CB>
-              <CB onClick={nextSong} disabled={!hasNext} size={28}>
+              <CB onClick={handleNext} disabled={!hasNext} size={28}>
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
                   <polygon points="5,4 15,12 5,20"/><rect x="17" y="4" width="2" height="16"/>
                 </svg>
@@ -192,8 +218,8 @@ const Player = memo(function Player() {
 });
 export default Player;
 
-const CB = ({ onClick, children, disabled, size=36, primary }) => (
-  <button onClick={onClick} disabled={disabled} style={{
+const CB = ({ onClick, children, disabled, size=36, primary, ariaLabel }) => (
+  <button onClick={onClick} disabled={disabled} aria-label={ariaLabel} style={{
     width:size, height:size, borderRadius:'50%', border:'none', flexShrink:0,
     display:'flex', alignItems:'center', justifyContent:'center',
     background: primary ? 'linear-gradient(135deg,var(--accent),var(--gold))' : 'transparent',

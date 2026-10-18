@@ -18,6 +18,19 @@ export const useYouTubePlayer = () => {
 
   const intervalRef  = useRef(null);
   const containerRef = useRef(null);
+  const readyRef = useRef(false);
+  const latestRef = useRef({ currentSong, isPlaying, volume });
+  latestRef.current = { currentSong, isPlaying, volume };
+
+  const onReady = useCallback((event) => {
+    readyRef.current = true;
+    playerRef.current = event.target;
+    const latest = latestRef.current;
+    event.target.setVolume?.(latest.volume);
+    if (!latest.currentSong?.videoId) return;
+    if (latest.isPlaying) event.target.loadVideoById?.(latest.currentSong.videoId);
+    else event.target.cueVideoById?.(latest.currentSong.videoId);
+  }, [playerRef]);
 
   useEffect(() => {
     const mediaSession = navigator.mediaSession;
@@ -35,8 +48,14 @@ export const useYouTubePlayer = () => {
     }
 
     const actions = {
-      play: () => dispatch({ type:'SET_PLAY', v:true }),
-      pause: () => dispatch({ type:'SET_PLAY', v:false }),
+      play: () => {
+        playerRef.current?.playVideo?.();
+        dispatch({ type:'SET_PLAY', v:true });
+      },
+      pause: () => {
+        playerRef.current?.pauseVideo?.();
+        dispatch({ type:'SET_PLAY', v:false });
+      },
       previoustrack: () => prevSong(),
       nexttrack: () => nextSong(),
       seekto: (event) => {
@@ -100,29 +119,33 @@ export const useYouTubePlayer = () => {
       playerRef.current = new window.YT.Player(containerRef.current, {
         height:'0', width:'0',
         playerVars: { autoplay:1, controls:0, disablekb:1, modestbranding:1, rel:0 },
-        events: { onStateChange, onError },
+        events: { onReady, onStateChange, onError },
       });
     };
     if (window.YT?.Player) create();
     else window.onYouTubeIframeAPIReady = create;
-    return () => { clearInterval(intervalRef.current); playerRef.current?.destroy?.(); };
-  }, []); // eslint-disable-line
+    return () => {
+      readyRef.current = false;
+      clearInterval(intervalRef.current);
+      playerRef.current?.destroy?.();
+    };
+  }, [onReady]); // eslint-disable-line
 
   // Load new video
   useEffect(() => {
-    if (!playerRef.current || !currentSong?.videoId) return;
+    if (!readyRef.current || !currentSong?.videoId) return;
     playerRef.current.loadVideoById?.(currentSong.videoId);
   }, [currentSong?.videoId]); // eslint-disable-line
 
   // Sync play/pause
   useEffect(() => {
-    if (!playerRef.current) return;
+    if (!readyRef.current) return;
     isPlaying ? playerRef.current.playVideo?.() : playerRef.current.pauseVideo?.();
   }, [isPlaying]); // eslint-disable-line
 
   // Sync volume
   useEffect(() => {
-    playerRef.current?.setVolume?.(volume);
+    if (readyRef.current) playerRef.current?.setVolume?.(volume);
   }, [volume]); // eslint-disable-line
 
   const seekTo = useCallback((s) => {
