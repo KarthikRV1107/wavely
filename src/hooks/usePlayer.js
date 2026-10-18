@@ -28,6 +28,7 @@ export const useYouTubePlayer = () => {
     playerRef.current = event.target;
     event.target.__wavelyReady = true;
     event.target.__wavelyRequestedVideoId = null;
+    event.target.__wavelyPendingUntil = 0;
     const latest = latestRef.current;
     event.target.setVolume?.(latest.volume);
     if (!latest.currentSong?.videoId) return;
@@ -100,6 +101,7 @@ export const useYouTubePlayer = () => {
     const YT = window.YT?.PlayerState;
     if (!YT) return;
     if (event.data === YT.PLAYING) {
+      if (playerRef.current) playerRef.current.__wavelyPendingUntil = 0;
       dispatch({ type:'SET_PLAY', v:true });
       clearInterval(intervalRef.current);
       intervalRef.current = setInterval(() => {
@@ -107,6 +109,8 @@ export const useYouTubePlayer = () => {
         setTime(Math.floor(t));
       }, 1000);
     } else if (event.data === YT.PAUSED) {
+      if ((playerRef.current?.__wavelyPendingUntil ?? 0) > Date.now()) return;
+      if (playerRef.current) playerRef.current.__wavelyPendingUntil = 0;
       dispatch({ type:'SET_PLAY', v:false });
       clearInterval(intervalRef.current);
     } else if (event.data === YT.ENDED) {
@@ -116,8 +120,9 @@ export const useYouTubePlayer = () => {
   }, [dispatch, setTime, nextSong, playerRef]);
 
   const onError = useCallback((e) => {
+    if (playerRef.current) playerRef.current.__wavelyPendingUntil = 0;
     if ([101, 150].includes(e.data)) nextSong();
-  }, [nextSong]);
+  }, [nextSong, playerRef]);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -146,6 +151,7 @@ export const useYouTubePlayer = () => {
   // Sync play/pause
   useEffect(() => {
     if (!readyRef.current) return;
+    if (!isPlaying) playerRef.current.__wavelyPendingUntil = 0;
     isPlaying ? playerRef.current.playVideo?.() : playerRef.current.pauseVideo?.();
   }, [isPlaying]); // eslint-disable-line
 
