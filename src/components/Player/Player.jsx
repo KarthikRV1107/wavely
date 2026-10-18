@@ -13,6 +13,7 @@ import {
 import { useYouTubePlayer } from '../../hooks/usePlayer';
 import { useBreakpoint }    from '../../hooks/useBreakpoint';
 import { formatTime }       from '../../utils/formatTime';
+import { loadYouTubeVideo } from '../../utils/youtubePlayer';
 
 const Player = memo(function Player() {
   const currentSong = useCurrentSong();
@@ -46,13 +47,13 @@ const Player = memo(function Player() {
   const handlePrevious = () => {
     if (!hasPrev) return;
     const song = queue[queueIndex - 1];
-    if (song?.videoId) playerRef.current?.loadVideoById?.(song.videoId);
+    if (song?.videoId) loadYouTubeVideo(playerRef.current, song.videoId);
     prevSong();
   };
   const handleNext = () => {
     if (!hasNext) return;
     const song = queue[queueIndex + 1];
-    if (song?.videoId) playerRef.current?.loadVideoById?.(song.videoId);
+    if (song?.videoId) loadYouTubeVideo(playerRef.current, song.videoId);
     nextSong();
   };
   const handleVolume = (value) => {

@@ -12,6 +12,7 @@ import {
 import { useAuth }    from '../../context/AuthContext';
 import { formatTime } from '../../utils/formatTime';
 import { LIKED } from '../../services/firestore';
+import { loadYouTubeVideo } from '../../utils/youtubePlayer';
 
 const SongCard = memo(function SongCard({
   song, queue=[], queueIndex=0, isLiked:initLiked,
@@ -34,12 +35,12 @@ const SongCard = memo(function SongCard({
   // Send playback commands in the tap handler to preserve mobile user activation.
   const handlePlay = useCallback(() => {
     if (isActive) {
-      if (isPlaying) playerRef.current?.pauseVideo?.();
-      else playerRef.current?.playVideo?.();
+      if (isPlaying) return;
+      playerRef.current?.playVideo?.();
       togglePlay();
       return;
     }
-    playerRef.current?.loadVideoById?.(song.videoId);
+    loadYouTubeVideo(playerRef.current, song.videoId);
     playSong(song, queue.length ? queue : [song], queueIndex);
   }, [isActive, isPlaying, song, queue, queueIndex, playSong, togglePlay, playerRef]);
 

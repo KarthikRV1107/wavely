@@ -7,6 +7,7 @@ import {
   usePlayerActions,
   useVolume,
 } from '../context/PlayerContext';
+import { loadYouTubeVideo } from '../utils/youtubePlayer';
 
 export const useYouTubePlayer = () => {
   const currentSong = useCurrentSong();
@@ -25,11 +26,16 @@ export const useYouTubePlayer = () => {
   const onReady = useCallback((event) => {
     readyRef.current = true;
     playerRef.current = event.target;
+    event.target.__wavelyReady = true;
+    event.target.__wavelyRequestedVideoId = null;
     const latest = latestRef.current;
     event.target.setVolume?.(latest.volume);
     if (!latest.currentSong?.videoId) return;
-    if (latest.isPlaying) event.target.loadVideoById?.(latest.currentSong.videoId);
-    else event.target.cueVideoById?.(latest.currentSong.videoId);
+    if (latest.isPlaying) loadYouTubeVideo(event.target, latest.currentSong.videoId);
+    else {
+      event.target.cueVideoById?.(latest.currentSong.videoId);
+      event.target.__wavelyRequestedVideoId = latest.currentSong.videoId;
+    }
   }, [playerRef]);
 
   useEffect(() => {
@@ -134,7 +140,7 @@ export const useYouTubePlayer = () => {
   // Load new video
   useEffect(() => {
     if (!readyRef.current || !currentSong?.videoId) return;
-    playerRef.current.loadVideoById?.(currentSong.videoId);
+    loadYouTubeVideo(playerRef.current, currentSong.videoId);
   }, [currentSong?.videoId]); // eslint-disable-line
 
   // Sync play/pause
