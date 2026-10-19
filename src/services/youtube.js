@@ -54,35 +54,70 @@ const toSong = (item, d=0) => ({
 });
 
 export const getTrendingSongs = async () => {
-  const K   = 'tr5';
+  const K   = 'india_music_mix_v1';
   const hit = cGet(K);
   if(hit) return hit;
 
-  const data = await apiFetch(`${BASE}/videos?${qs({
-    part:'snippet,contentDetails',
-    chart:'mostPopular',
-    videoCategoryId:'10',
-    maxResults:'20',
-  })}`);
+  const year = new Date().getFullYear();
+  const languages = [
+    { language:'Hindi', query:`trending Hindi songs India ${year}` },
+    { language:'Tamil', query:`trending Tamil songs India ${year}` },
+    { language:'Telugu', query:`trending Telugu songs India ${year}` },
+  ];
+  const [results, chartResult] = await Promise.all([
+    Promise.allSettled(languages.map(async ({ language, query }) => {
+      const songs = await searchSongs(query, { regionCode:'IN', fetchDurations:false });
+      return songs.slice(0, 8).map(song => ({ ...song, language }));
+    })),
+    apiFetch(`${BASE}/videos?${qs({
+      part:'snippet,contentDetails', chart:'mostPopular', regionCode:'IN',
+      videoCategoryId:'10', maxResults:'50',
+    })}`).then(data => {
+      if (data.error) throw new Error(data.error.message);
+      return (data.items ?? []).map(item => ({
+        ...toSong(item, dur(item.contentDetails?.duration)), language:'India Trending',
+      }));
+    }).catch(() => []),
+  ]);
+  const batches = results
+    .filter(result => result.status === 'fulfilled')
+    .map(result => result.value);
+  batches.push(chartResult);
+  if (!batches.some(batch => batch.length)) throw new Error('Could not load India trending songs.');
 
-  if(data.error) {
-    console.warn('Trending failed:',data.error.message);
-    return searchSongs('top music hits 2025');
+  const songs = [];
+  const seen = new Set();
+  for (let index = 0; index < Math.max(...batches.map(batch => batch.length)); index += 1) {
+    batches.forEach(batch => {
+      const song = batch[index];
+      if (song && !seen.has(song.videoId)) {
+        seen.add(song.videoId);
+        songs.push(song);
+      }
+    });
   }
-
-  const songs = (data.items??[]).map(i=>toSong(i,dur(i.contentDetails?.duration)));
-  cSet(K, songs, 30*60000);
+  const ids = songs.filter(song => song.language !== 'India Trending')
+    .map(song => song.videoId).filter(Boolean).join(',');
+  if (ids) {
+    try {
+      const details = await apiFetch(`${BASE}/videos?${qs({ part:'contentDetails', id:ids })}`);
+      const durations = new Map((details.items ?? []).map(item => [item.id, dur(item.contentDetails?.duration)]));
+      songs.forEach(song => { song.durationSeconds = durations.get(song.videoId) ?? song.durationSeconds; });
+    } catch { /* Keep songs playable if duration lookup fails. */ }
+  }
+  cSet(K, songs, 6*60*60*1000);
   return songs;
 };
 
-export const searchSongs = async (query) => {
-  const K   = 'sr_'+query.trim().toLowerCase().slice(0,60);
+export const searchSongs = async (query, { regionCode, fetchDurations = true } = {}) => {
+  const K   = 'sr_'+(regionCode ? `${regionCode}_` : '')+(fetchDurations ? '' : 'nd_')+query.trim().toLowerCase().slice(0,60);
   const hit = cGet(K);
   if(hit) return hit;
 
   const data = await apiFetch(`${BASE}/search?${qs({
     part:'snippet', q:`${query} music`,
     type:'video', videoCategoryId:'10', maxResults:'20',
+    ...(regionCode ? { regionCode } : {}),
   })}`);
   if(data.error) throw new Error(data.error.message);
 
@@ -91,7 +126,7 @@ export const searchSongs = async (query) => {
 
   // Fetch durations in background — doesn't block UI
   const ids = songs.map(s=>s.videoId).filter(Boolean).join(',');
-  if(ids) {
+  if(ids && fetchDurations) {
     apiFetch(`${BASE}/videos?${qs({part:'contentDetails',id:ids})}`).then(d=>{
       const map={};
       (d.items??[]).forEach(i=>{map[i.id]=dur(i.contentDetails?.duration);});
@@ -103,5 +138,5 @@ export const searchSongs = async (query) => {
 };
 
 export const prefetchTrending = () => {
-  if(!cGet('tr5')) getTrendingSongs().catch(()=>{});
+  if(!cGet('india_music_mix_v1')) getTrendingSongs().catch(()=>{});
 };

@@ -15,7 +15,7 @@ import { LIKED } from '../../services/firestore';
 import { loadYouTubeVideo } from '../../utils/youtubePlayer';
 
 const SongCard = memo(function SongCard({
-  song, queue=[], queueIndex=0, isLiked:initLiked,
+  song, queue=[], queueIndex=0, isLiked:initLiked, languageLabel,
   onAddToPlaylist, showIndex=false, style={},
 }) {
   const { playSong, togglePlay, playerRef } = usePlayerActions();
@@ -112,6 +112,14 @@ const SongCard = memo(function SongCard({
       {!!song.durationSeconds && (
         <span style={{ fontSize:11, color:'var(--text3)', flexShrink:0 }}>
           {formatTime(song.durationSeconds)}
+        </span>
+      )}
+
+      {languageLabel && (
+        <span style={{ fontSize:9, color:'var(--accent2)', flexShrink:0,
+                       background:'rgba(var(--accent-rgb),0.1)', borderRadius:20,
+                       padding:'3px 6px', fontWeight:700 }}>
+          {languageLabel}
         </span>
       )}
 

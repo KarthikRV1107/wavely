@@ -85,7 +85,7 @@ export default function SearchPage() {
       <div style={{
         padding: isDesktop ? '14px 0 12px' : '12px 16px',
         position:'sticky', top: isDesktop ? 52 : 0, zIndex:20,
-        background:'var(--overlay)',
+        background:'transparent',
         backdropFilter:'blur(20px)', WebkitBackdropFilter:'blur(20px)',
         borderBottom:'1px solid var(--border)',
       }}>
@@ -97,7 +97,7 @@ export default function SearchPage() {
         )}
         <div style={{
           display:'flex', alignItems:'center', gap:10,
-          background:'var(--bg3)', border:'1px solid var(--border2)',
+          background:'transparent', border:'1px solid var(--border2)',
           borderRadius:12, padding:'10px 14px',
         }}>
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
@@ -107,7 +107,7 @@ export default function SearchPage() {
           </svg>
           <input
             ref={inputRef}
-            type="search"
+            type="text"
             placeholder="Songs, artists, albums…"
             value={query}
             onChange={handleInput}
@@ -124,10 +124,10 @@ export default function SearchPage() {
               animation:'spin .6s linear infinite', flexShrink:0,
             }}/>
           )}
-          {(query || active) && !loading && (
-            <button onClick={clear} style={{
+          {(query || active) && (
+            <button type="button" onClick={clear} aria-label="Clear search" title="Clear search" style={{
               background:'none', border:'none', color:'var(--text3)',
-              fontSize:18, cursor:'pointer', padding:0, lineHeight:1,
+              fontSize:18, cursor:'pointer', padding:2, lineHeight:1, flexShrink:0,
             }}>×</button>
           )}
         </div>
