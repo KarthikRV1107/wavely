@@ -59,7 +59,7 @@ export default function Home() {
     return () => { alive.current = false; };
   }, [uid]);
 
-  const bannerSongs = trending.slice(0, 12);
+  const bannerSongs = trending.filter(song => song.isChartTrending).slice(0, 12);
 
   const firstName = (user?.displayName || user?.email || '').split(/[\s@]/)[0] || 'Friend';
   const showPlaylistsLoading = libraryLoading && playlists.length === 0;

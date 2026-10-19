@@ -106,27 +106,26 @@ const SongCard = memo(function SongCard({
                background:bg, border, cursor:'pointer',
                transition:'background 0.1s', minWidth:0, ...style }}
     >
-      {showIndex ? (
-        <div style={{ width:28, flexShrink:0, textAlign:'center',
+      {showIndex && (
+        <div style={{ width:22, flexShrink:0, textAlign:'center',
                       color:isActive?'var(--accent2)':'var(--text3)',
                       fontSize:11, fontWeight:500 }}>
           {isPlays ? <Eq/> : queueIndex+1}
         </div>
-      ) : (
-        <div style={{ position:'relative', flexShrink:0 }}>
-          <img src={song.thumbnailUrl} alt="" loading="lazy" width={40} height={40}
-            style={{ width:40, height:40, borderRadius:6, objectFit:'cover', display:'block' }}
-            onError={e=>{e.target.style.background='var(--bg4)';e.target.src='';}}
-          />
-          {(hovered||isActive) && (
-            <div style={{ position:'absolute', inset:0, borderRadius:6,
-                          background:'rgba(0,0,0,0.5)', color:'#fff',
-                          display:'flex', alignItems:'center', justifyContent:'center' }}>
-              {isPlays ? <PauseIco/> : <PlayIco/>}
-            </div>
-          )}
-        </div>
       )}
+      <div style={{ position:'relative', flexShrink:0 }}>
+        <img src={song.thumbnailUrl} alt="" loading="lazy" width={40} height={40}
+          style={{ width:40, height:40, borderRadius:6, objectFit:'cover', display:'block' }}
+          onError={e=>{e.target.style.background='var(--bg4)';e.target.src='';}}
+        />
+        {(hovered||isActive) && (
+          <div style={{ position:'absolute', inset:0, borderRadius:6,
+                        background:'rgba(0,0,0,0.5)', color:'#fff',
+                        display:'flex', alignItems:'center', justifyContent:'center' }}>
+            {isPlays ? <PauseIco/> : <PlayIco/>}
+          </div>
+        )}
+      </div>
 
       <div style={{ flex:1, minWidth:0 }}>
         <p style={{ fontSize:13, fontWeight:500, margin:0, lineHeight:1.3,

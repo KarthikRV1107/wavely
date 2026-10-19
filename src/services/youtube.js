@@ -54,7 +54,7 @@ const toSong = (item, d=0) => ({
 });
 
 export const getTrendingSongs = async () => {
-  const K   = 'india_music_mix_v1';
+  const K   = 'india_music_mix_v2';
   const hit = cGet(K);
   if(hit) return hit;
 
@@ -76,6 +76,7 @@ export const getTrendingSongs = async () => {
       if (data.error) throw new Error(data.error.message);
       return (data.items ?? []).map(item => ({
         ...toSong(item, dur(item.contentDetails?.duration)), language:'India Trending',
+        isChartTrending:true,
       }));
     }).catch(() => []),
   ]);
@@ -83,8 +84,9 @@ export const getTrendingSongs = async () => {
     .filter(result => result.status === 'fulfilled')
     .map(result => result.value);
   batches.push(chartResult);
-  if (!batches.some(batch => batch.length)) throw new Error('Could not load India trending songs.');
+  if (!batches.some(batch => batch.length)) throw new Error('Could not load trending songs.');
 
+  const chartIds = new Set(chartResult.map(song => song.videoId));
   const songs = [];
   const seen = new Set();
   for (let index = 0; index < Math.max(...batches.map(batch => batch.length)); index += 1) {
@@ -92,7 +94,7 @@ export const getTrendingSongs = async () => {
       const song = batch[index];
       if (song && !seen.has(song.videoId)) {
         seen.add(song.videoId);
-        songs.push(song);
+        songs.push(chartIds.has(song.videoId) ? { ...song, isChartTrending:true } : song);
       }
     });
   }
@@ -138,5 +140,5 @@ export const searchSongs = async (query, { regionCode, fetchDurations = true } =
 };
 
 export const prefetchTrending = () => {
-  if(!cGet('india_music_mix_v1')) getTrendingSongs().catch(()=>{});
+  if(!cGet('india_music_mix_v2')) getTrendingSongs().catch(()=>{});
 };
