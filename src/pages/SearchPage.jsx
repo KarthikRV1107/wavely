@@ -33,6 +33,7 @@ export default function SearchPage() {
   const inputRef = useRef(null);
   const timer    = useRef(null);
   const alive    = useRef(true);
+  const searchSequence = useRef(0);
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -41,21 +42,29 @@ export default function SearchPage() {
   }, []);
 
   const doSearch = useCallback((q) => {
+    const sequence = ++searchSequence.current;
     clearTimeout(timer.current);
-    if (!q.trim()) { setResults([]); setLoading(false); return; }
-    if (_cache.has(q)) { setResults(_cache.get(q)); return; }
+    const searchText = q.trim();
+    if (!searchText) { setResults([]); setLoading(false); setError(null); return; }
+    const cacheKey = searchText.toLowerCase();
+    if (_cache.has(cacheKey)) {
+      setResults(_cache.get(cacheKey));
+      setLoading(false);
+      setError(null);
+      return;
+    }
     setLoading(true);
     setError(null);
     timer.current = setTimeout(async () => {
       try {
-        const songs = await searchSongs(q);
-        if (!alive.current) return;
-        _cache.set(q, songs);
+        const songs = await searchSongs(searchText);
+        if (!alive.current || sequence !== searchSequence.current) return;
+        _cache.set(cacheKey, songs);
         setResults(songs);
       } catch (e) {
-        if (alive.current) setError(e.message);
+        if (alive.current && sequence === searchSequence.current) setError(e.message);
       } finally {
-        if (alive.current) setLoading(false);
+        if (alive.current && sequence === searchSequence.current) setLoading(false);
       }
     }, 350);
   }, []);
@@ -73,6 +82,7 @@ export default function SearchPage() {
   };
 
   const clear = () => {
+    searchSequence.current += 1;
     setQuery(''); setResults([]); setActive(null);
     setError(null); setLoading(false);
     clearTimeout(timer.current);

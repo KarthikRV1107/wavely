@@ -112,14 +112,17 @@ export const getTrendingSongs = async () => {
 };
 
 export const searchSongs = async (query, { regionCode, fetchDurations = true } = {}) => {
-  const K   = 'sr_'+(regionCode ? `${regionCode}_` : '')+(fetchDurations ? '' : 'nd_')+query.trim().toLowerCase().slice(0,60);
+  const searchTerm = query.trim();
+  const englishIntent = /\benglish\b/i.test(searchTerm);
+  const K   = 'sr3_'+(regionCode ? `${regionCode}_` : '')+(fetchDurations ? '' : 'nd_')+searchTerm.toLowerCase().slice(0,60);
   const hit = cGet(K);
   if(hit) return hit;
 
   const data = await apiFetch(`${BASE}/search?${qs({
-    part:'snippet', q:`${query} music`,
-    type:'video', videoCategoryId:'10', maxResults:'20',
+    part:'snippet', q:searchTerm,
+    type:'video', order:'relevance', maxResults:'20',
     ...(regionCode ? { regionCode } : {}),
+    ...(englishIntent ? { relevanceLanguage:'en' } : {}),
   })}`);
   if(data.error) throw new Error(data.error.message);
 
