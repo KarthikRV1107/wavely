@@ -98,8 +98,8 @@ export default function SearchPage() {
         )}
         <div style={{
           display:'flex', alignItems:'center', gap:10,
-          backgroundColor:'transparent',
-          border:isDesktop ? 'none' : '1px solid var(--border2)',
+          backgroundColor:isDesktop ? 'var(--bg2)' : 'transparent',
+          border:'1px solid var(--border2)',
           borderRadius:12, padding:'10px 14px',
         }}>
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
