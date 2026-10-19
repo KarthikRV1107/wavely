@@ -170,8 +170,8 @@ export default function SearchPage() {
             </p>
             <div style={{
               display:'grid',
-              gridTemplateColumns: isDesktop ? '1fr 1fr' : '1fr',
-              gap:2,
+              gridTemplateColumns:'repeat(auto-fill,minmax(150px,1fr))',
+              gap:16,
             }}>
               {results.map((s, i) => (
                 <SongCard
@@ -179,6 +179,7 @@ export default function SearchPage() {
                   song={s}
                   queue={results}
                   queueIndex={i}
+                  variant="grid"
                   onAddToPlaylist={setModalSong}   // ← passes the + button
                 />
               ))}

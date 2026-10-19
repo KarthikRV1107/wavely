@@ -120,12 +120,12 @@ export default function LibraryPage() {
                      sub="Tap ♥ on any song to save it"/>
             : <div style={{
                 display:'grid',
-                gridTemplateColumns: isDesktop ? '1fr 1fr' : '1fr',
-                gap:2,
+                gridTemplateColumns:'repeat(auto-fill,minmax(150px,1fr))',
+                gap:16,
               }}>
                 {liked.map((song,i) => (
                   <SongCard key={song.id ?? song.videoId}
-                    song={song} queue={liked} queueIndex={i} isLiked/>
+                    song={song} queue={liked} queueIndex={i} isLiked variant="grid"/>
                 ))}
               </div>
         )}

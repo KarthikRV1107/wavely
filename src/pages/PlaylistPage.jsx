@@ -211,18 +211,21 @@ export default function PlaylistPage() {
             </p>
           </div>
         ) : (
-          <div style={{ display:'flex', flexDirection:'column', gap:1 }}>
+          <div className="song-grid">
             {songs.map((song, i) => (
-              <div key={song.id} style={{ display:'flex', alignItems:'center' }}>
-                <div style={{ flex:1, minWidth:0 }}>
+              <div key={song.id} className="playlist-song-card">
+                <div style={{ minWidth:0 }}>
                   <SongCard song={song} queue={songs}
-                    queueIndex={i} showIndex/>
+                    queueIndex={i} showIndex variant="grid"/>
                 </div>
                 <button
+                  aria-label={`Remove ${song.title} from playlist`}
                   onClick={() => handleRemove(song)}
                   style={{
                     background:'none', border:'none', cursor:'pointer',
                     color:'var(--text3)', fontSize:18, padding:'4px 8px',
+                    position:'absolute', right:8, top:8, zIndex:2,
+                    width:30, height:30, borderRadius:'50%', background:'var(--bg2)',
                     flexShrink:0, lineHeight:1, transition:'color 0.15s',
                   }}
                   onMouseEnter={e => e.currentTarget.style.color='var(--red)'}

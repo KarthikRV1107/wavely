@@ -15,8 +15,8 @@ import { LIKED } from '../../services/firestore';
 import { loadYouTubeVideo } from '../../utils/youtubePlayer';
 
 const SongCard = memo(function SongCard({
-  song, queue=[], queueIndex=0, isLiked:initLiked, languageLabel,
-  onAddToPlaylist, showIndex=false, style={},
+  song, queue=[], queueIndex=0, isLiked:initLiked,
+  onAddToPlaylist, showIndex=false, style={}, variant='list',
 }) {
   const { playSong, togglePlay, playerRef } = usePlayerActions();
   const currentSong = useCurrentSong();
@@ -63,6 +63,38 @@ const SongCard = memo(function SongCard({
 
   const bg = isActive ? 'rgba(var(--accent-rgb),0.1)' : hovered ? 'var(--bg3)' : 'transparent';
   const border = isActive ? '1px solid rgba(var(--accent-rgb),0.18)' : '1px solid transparent';
+
+  if (variant === 'grid') return (
+    <div className={`song-card song-card-grid${isActive ? ' is-active' : ''}`}
+      onClick={handlePlay} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}
+      style={{ background:bg, border, ...style }}>
+      <div className="song-card-grid-art">
+        <img src={song.thumbnailUrl} alt="" loading="lazy" decoding="async"
+          onError={e=>{e.currentTarget.style.background='var(--bg4)';e.currentTarget.src='';}}/>
+        <span className="song-card-grid-play">{isPlays ? <PauseIco/> : <PlayIco/>}</span>
+        {showIndex && <span className="song-card-grid-index">{queueIndex + 1}</span>}
+      </div>
+      <div className="song-card-grid-meta">
+        <div className="song-card-grid-copy">
+          <p className="song-card-grid-title" title={song.title}>{song.title}</p>
+          <p className="song-card-grid-artist" title={song.channelName}>{song.channelName}</p>
+        </div>
+        {!!song.durationSeconds && <span className="song-card-grid-duration">{formatTime(song.durationSeconds)}</span>}
+      </div>
+      <div className="song-card-actions song-card-grid-actions" onClick={e=>e.stopPropagation()}>
+        <Btn onClick={handleLike} label={liked?'Unlike':'Like'}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill={liked?'var(--pink)':'none'} stroke={liked?'var(--pink)':'var(--text3)'} strokeWidth="1.8">
+            <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1L12 21l7.7-7.6 1.1-1a5.5 5.5 0 0 0 0-7.8z"/>
+          </svg>
+        </Btn>
+        {onAddToPlaylist && <Btn onClick={()=>onAddToPlaylist(song)} label="Add to playlist">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" strokeWidth="1.8">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+        </Btn>}
+      </div>
+    </div>
+  );
 
   return (
     <div
@@ -112,14 +144,6 @@ const SongCard = memo(function SongCard({
       {!!song.durationSeconds && (
         <span style={{ fontSize:11, color:'var(--text3)', flexShrink:0 }}>
           {formatTime(song.durationSeconds)}
-        </span>
-      )}
-
-      {languageLabel && (
-        <span style={{ fontSize:9, color:'var(--accent2)', flexShrink:0,
-                       background:'rgba(var(--accent-rgb),0.1)', borderRadius:20,
-                       padding:'3px 6px', fontWeight:700 }}>
-          {languageLabel}
         </span>
       )}
 

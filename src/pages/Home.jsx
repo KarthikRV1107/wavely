@@ -1,6 +1,6 @@
 // src/pages/Home.jsx — stale-while-revalidate: show cached data instantly,
 // fetch fresh data in background without blocking the UI.
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate }      from 'react-router-dom';
 import { useAuth }          from '../context/AuthContext';
 import { useLibrary }       from '../context/LibraryContext';
@@ -9,6 +9,7 @@ import { useBreakpoint }    from '../hooks/useBreakpoint';
 import { getTrendingSongs } from '../services/youtube';
 import SongCard             from '../components/SongCard/SongCard';
 import PlaylistForm         from '../components/Playlist/PlaylistForm';
+import HeroCarousel         from '../components/HeroCarousel';
 
 const greet = () =>
   ['Good morning','Good afternoon','Good evening'][Math.min(2,Math.floor(new Date().getHours()/8))];
@@ -30,8 +31,6 @@ export default function Home() {
   const [loading,   setLoading]   = useState(!_songs);  // false if cache hit
   const [error,     setError]     = useState(null);
   const [modal,     setModal]     = useState(null);
-  const [activeLanguage, setActiveLanguage] = useState('All languages');
-  const [slideIndex, setSlideIndex] = useState(0);
   const alive = useRef(true);
 
   useEffect(() => {
@@ -60,38 +59,9 @@ export default function Home() {
     return () => { alive.current = false; };
   }, [uid]);
 
-  const bannerSongs = useMemo(() => {
-    const seenLanguages = new Set();
-    const slides = trending.filter(song => {
-      if (seenLanguages.has(song.language)) return false;
-      seenLanguages.add(song.language);
-      return true;
-    });
-    return slides.length > 1 ? slides : trending.slice(0, 8);
-  }, [trending]);
-  const bannerCount = bannerSongs.length;
-
-  useEffect(() => {
-    if (bannerCount < 2) return undefined;
-    const timer = window.setInterval(() => {
-      setSlideIndex(index => (index + 1) % bannerCount);
-    }, 5000);
-    return () => window.clearInterval(timer);
-  }, [bannerCount]);
-
-  useEffect(() => {
-    if (slideIndex >= bannerCount) setSlideIndex(0);
-  }, [bannerCount, slideIndex]);
+  const bannerSongs = trending.slice(0, 12);
 
   const firstName = (user?.displayName || user?.email || '').split(/[\s@]/)[0] || 'Friend';
-  const featured = bannerSongs[slideIndex];
-  const featuredQueueIndex = featured
-    ? trending.findIndex(song => song.videoId === featured.videoId) : 0;
-  const availableLanguages = [...new Set(trending.map(song => song.language).filter(Boolean))];
-  const selectedLanguage = availableLanguages.includes(activeLanguage) ? activeLanguage : 'All languages';
-  const visibleSongs = selectedLanguage === 'All languages'
-    ? trending
-    : trending.filter(song => song.language === selectedLanguage);
   const showPlaylistsLoading = libraryLoading && playlists.length === 0;
 
   return (
@@ -134,92 +104,9 @@ export default function Home() {
         )}
 
         {/* ── Hero ── */}
-        {loading && !featured
-          ? <SK h={isDesktop?260:205} r={18} mb={18}/>
-          : featured && (
-          <div className="home-banner" onClick={() => playSong(featured, trending, featuredQueueIndex)} style={{
-            position:'relative', borderRadius:18, overflow:'hidden',
-            marginBottom:22, cursor:'pointer', height:isDesktop?280:205,
-            border:'1px solid var(--border2)', boxShadow:'var(--shadow-md)',
-          }}>
-            <img
-              key={featured.videoId}
-              src={featured.thumbnailUrl}
-              alt={featured.title}
-              loading="eager"
-              decoding="async"
-              className="home-banner-image"
-              style={{ width:'100%', height:'100%', objectFit:'cover', display:'block' }}
-            />
-            <div style={{ position:'absolute', inset:0,
-              background:'linear-gradient(90deg,rgba(0,0,0,.72),rgba(0,0,0,.12) 78%),linear-gradient(0deg,rgba(0,0,0,.66),transparent 72%)' }}/>
-            <div style={{ position:'absolute', top:14, left:14, right:14,
-                          display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-              <span style={{ fontSize:10, fontWeight:700, letterSpacing:'.1em',
-                             color:'#fff', background:'rgba(0,0,0,.42)',
-                             border:'1px solid rgba(255,255,255,.28)', borderRadius:99,
-                             padding:'7px 11px', backdropFilter:'blur(10px)' }}>
-                INDIA TRENDING · {featured.language || 'MUSIC'}
-              </span>
-              {bannerSongs.length > 1 && (
-                <div style={{ display:'flex', gap:6 }}>
-                  {[-1,1].map(direction => (
-                    <button key={direction} aria-label={direction < 0 ? 'Previous banner' : 'Next banner'}
-                      onClick={event => {
-                        event.stopPropagation();
-                        setSlideIndex(index => (index + direction + bannerSongs.length) % bannerSongs.length);
-                      }}
-                      style={{ width:32, height:32, borderRadius:'50%', border:'1px solid rgba(255,255,255,.3)',
-                               background:'rgba(0,0,0,.35)', color:'#fff', fontSize:19,
-                               display:'grid', placeItems:'center', backdropFilter:'blur(10px)' }}>
-                      {direction < 0 ? '‹' : '›'}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-            <div style={{ position:'absolute', bottom:0, left:0, right:0,
-                          padding: isDesktop ? '22px' : '16px' }}>
-              <p style={{ fontSize:10, color:'#ffd18b', letterSpacing:'0.12em',
-                          fontWeight:700, margin:'0 0 5px' }}>FEATURED SONG</p>
-              <h2 style={{ fontFamily:'var(--font-display)',
-                           fontSize:isDesktop?26:19, fontWeight:800, color:'#fff',
-                           margin:'0 0 4px', overflow:'hidden', maxWidth:'78%',
-                           textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
-                {featured.title}
-              </h2>
-              <p style={{ fontSize:11, color:'rgba(255,255,255,.6)', margin:0 }}>
-                {featured.channelName}
-              </p>
-              <button type="button" onClick={event => {
-                event.stopPropagation();
-                playSong(featured, trending, featuredQueueIndex);
-              }} style={{
-                marginTop:11, display:'inline-flex', alignItems:'center', gap:7,
-                background:'#fff', borderRadius:50, padding:'8px 15px',
-                boxShadow:'0 5px 18px rgba(0,0,0,.2)', border:0,
-              }}>
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="var(--accent)">
-                  <polygon points="5,3 19,12 5,21"/>
-                </svg>
-                <span style={{ fontSize:11, fontWeight:700, color:'var(--bg)' }}>Play song</span>
-              </button>
-            </div>
-            {bannerSongs.length > 1 && (
-              <div aria-label="Banner slides" style={{ position:'absolute', right:17, bottom:20,
-                              display:'flex', gap:5, alignItems:'center' }}>
-                {bannerSongs.map((song, index) => (
-                  <button key={song.videoId} aria-label={`Show ${song.language} banner`}
-                    aria-current={index === slideIndex ? 'true' : undefined}
-                    onClick={event => { event.stopPropagation(); setSlideIndex(index); }}
-                    style={{ width:index === slideIndex ? 19 : 6, height:6, padding:0,
-                             border:0, borderRadius:99, background:index === slideIndex ? '#fff' : 'rgba(255,255,255,.55)',
-                             transition:'width .2s ease' }}/>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
+        {loading && !bannerSongs.length
+          ? <SK h={isDesktop?220:190} r={18} mb={18}/>
+          : bannerSongs.length > 0 && <HeroCarousel songs={bannerSongs} queue={trending} playSong={playSong} isDesktop={isDesktop}/>}
 
         {/* ── Playlists ── */}
         <section style={{ marginBottom:16 }}>
@@ -254,42 +141,24 @@ export default function Home() {
           }
         </section>
 
-        {/* ── India language mix ── */}
+        {/* ── Trending music ── */}
         <section>
           <div style={{ display:'flex', alignItems:'end', justifyContent:'space-between',
                         gap:10, marginBottom:10 }}>
             <div>
-              <p style={{ fontSize:10, color:'var(--accent2)', fontWeight:700,
-                          letterSpacing:'.12em', margin:'0 0 3px' }}>FRESH FROM INDIA</p>
               <h2 style={{ fontFamily:'var(--font-display)', fontSize:18, fontWeight:800,
-                           color:'var(--text1)', margin:0 }}>Trending across languages</h2>
+                           color:'var(--text1)', margin:0 }}>Trending right now</h2>
             </div>
           </div>
-          {!loading && trending.length > 0 && (
-            <div className="home-language-filters" aria-label="Filter by language">
-              {['All languages', ...availableLanguages].map(language => (
-                <button key={language} type="button" aria-pressed={selectedLanguage === language}
-                  onClick={() => setActiveLanguage(language)}
-                  className={selectedLanguage === language ? 'home-language-chip is-active' : 'home-language-chip'}>
-                  {language}
-                </button>
-              ))}
-            </div>
-          )}
           {loading && !trending.length
-            ? <div style={{ display:'grid',
-                            gridTemplateColumns:isDesktop?'1fr 1fr':'1fr', gap:3 }}>
-                {[0,1,2,3,4,5].map(i => <SK key={i} h={50} r={7}/>)}
+            ? <div className="song-grid">
+                {[0,1,2,3,4,5].map(i => <SK key={i} h={220} r={12}/>)}
               </div>
-            : <div style={{
-                display:'grid',
-                gridTemplateColumns: isDesktop ? '1fr 1fr' : '1fr',
-                gap: 3,
-              }}>
-                {visibleSongs.map((s) => (
+            : <div className="song-grid">
+                {trending.map((s) => (
                   <SongCard key={s.videoId} song={s}
                     queue={trending} queueIndex={trending.findIndex(item => item.videoId === s.videoId)}
-                    languageLabel={s.language}
+                    variant="grid"
                     onAddToPlaylist={setModal}
                   />
                 ))}

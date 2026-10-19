@@ -146,36 +146,73 @@ input, textarea { font-family: var(--font-body); }
   border: 1px solid var(--border);
 }
 
-.home-banner { isolation: isolate; }
-.home-banner button:focus-visible { outline: 3px solid var(--accent2); outline-offset: 3px; }
-.home-banner-image { animation: homeBannerReveal .45s ease both; }
-.home-language-filters {
+.song-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 16px;
+}
+.song-card-grid {
   display: flex;
-  gap: 7px;
-  overflow-x: auto;
-  padding: 1px 1px 9px;
-  margin-bottom: 4px;
-  scrollbar-width: none;
+  min-width: 0;
+  flex-direction: column;
+  gap: 9px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  color: var(--text1);
+  cursor: pointer;
+  transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
 }
-.home-language-filters::-webkit-scrollbar { display: none; }
-.home-language-chip {
-  flex: 0 0 auto;
-  border: 1px solid var(--border2);
-  border-radius: 999px;
-  padding: 7px 11px;
-  background: var(--bg2);
-  color: var(--text2);
-  font-size: 11px;
-  transition: background .18s ease, color .18s ease, border-color .18s ease;
-}
-.home-language-chip.is-active {
-  background: var(--accent);
-  color: #fff;
-  border-color: var(--accent);
-}
+.song-card-grid:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+.song-card-grid-art { position: relative; width: 100%; aspect-ratio: 1 / 1; overflow: hidden; border-radius: 8px; background: var(--bg4); }
+.song-card-grid-art img { display: block; width: 100%; height: 100%; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 8px; transition: transform .35s ease; }
+.song-card-grid:hover .song-card-grid-art img { transform: scale(1.04); }
+.song-card-grid-play { position: absolute; right: 9px; bottom: 9px; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: var(--accent); color: #fff; box-shadow: 0 4px 14px #0005; opacity: 0; transform: translateY(5px); transition: opacity .18s ease, transform .18s ease; }
+.song-card-grid:hover .song-card-grid-play, .song-card-grid.is-active .song-card-grid-play { opacity: 1; transform: none; }
+.song-card-grid-index { position: absolute; top: 8px; left: 8px; display: grid; place-items: center; min-width: 24px; height: 24px; padding: 0 6px; border-radius: 999px; background: #0009; color: white; font-size: 11px; font-weight: 700; }
+.song-card-grid-meta { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.song-card-grid-copy { min-width: 0; flex: 1; }
+.song-card-grid-title, .song-card-grid-artist { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.song-card-grid-title { margin: 0; color: var(--text1); font-size: 13px; font-weight: 700; line-height: 1.35; }
+.song-card-grid-artist { margin: 2px 0 0; color: var(--text3); font-size: 11px; line-height: 1.3; }
+.song-card-grid-duration { flex: 0 0 auto; color: var(--text3); font-size: 10px; }
+.song-card-grid-actions { justify-content: flex-end; min-height: 28px; }
+.song-card-grid-actions button { background: var(--bg3) !important; }
+.playlist-song-card { position: relative; min-width: 0; }
+.playlist-song-card .song-card-grid-actions { justify-content: flex-start; }
+
+.home-carousel { position: relative; margin: 0 0 26px; padding: 0 16px 26px; }
+.home-banner-track { display: grid; grid-template-columns: minmax(0,1fr); gap: 12px; }
+.home-banner-track.is-wide { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 14px; }
+.home-banner-card { position: relative; display: block; min-width: 0; height: clamp(180px, 22vw, 260px); overflow: hidden; padding: 0; border: 1px solid var(--border2); border-radius: 16px; background: var(--bg3); text-align: left; box-shadow: var(--shadow-md); isolation: isolate; }
+.home-banner-card img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform .6s ease; }
+.home-banner-card:hover img { transform: scale(1.045); }
+.home-banner-shade { position: absolute; inset: 0; background: linear-gradient(0deg,rgba(0,0,0,.82),rgba(0,0,0,.05) 76%),linear-gradient(90deg,rgba(0,0,0,.22),transparent); }
+.home-banner-copy { position: absolute; left: 16px; right: 48px; bottom: 17px; display: flex; flex-direction: column; gap: 4px; color: white; }
+.home-banner-kicker { color: #ffd18b; font-size: 9px; font-weight: 800; letter-spacing: .14em; }
+.home-banner-title { overflow: hidden; font-family: var(--font-display); font-size: clamp(14px,1.45vw,20px); font-weight: 800; text-overflow: ellipsis; white-space: nowrap; }
+.home-banner-artist { overflow: hidden; color: #ffffffb5; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+.home-banner-play { position: absolute; right: 14px; bottom: 16px; display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: white; color: var(--accent); box-shadow: 0 5px 16px #0005; }
+.home-carousel-arrow { position: absolute; top: calc(50% - 12px); z-index: 2; display: grid; place-items: center; width: 40px; height: 40px; border: 1px solid #ffffff30; border-radius: 50%; background: #171717dd; color: white; font-size: 28px; line-height: 1; box-shadow: 0 4px 18px #0005; }
+.home-carousel-arrow.is-prev { left: 0; }
+.home-carousel-arrow.is-next { right: 0; }
+.home-carousel-arrow:hover { background: var(--accent); }
+.home-carousel-dots { position: absolute; bottom: 0; left: 50%; display: flex; align-items: center; gap: 8px; transform: translateX(-50%); }
+.home-carousel-dots button { width: 8px; height: 8px; padding: 0; border: 0; border-radius: 99px; background: var(--text3); transition: width .2s ease, background .2s ease; }
+.home-carousel-dots button.is-active { width: 25px; background: var(--text1); }
 @keyframes homeBannerReveal {
   from { opacity: .55; transform: scale(1.015); }
   to { opacity: 1; transform: scale(1); }
+}
+
+@media (max-width: 767px) {
+  .song-grid { grid-template-columns: repeat(auto-fill, minmax(145px, 1fr)); gap: 12px; }
+  .song-card-grid { padding: 8px; }
+  .song-card-grid-play { opacity: 1; transform: none; width: 32px; height: 32px; }
+  .song-card-grid-actions { opacity: 1 !important; }
+  .home-carousel { padding-right: 10px; padding-left: 10px; }
+  .home-banner-card { height: 190px; }
+  .home-carousel-arrow { width: 34px; height: 34px; font-size: 23px; }
 }
 
 /* ── Responsive Layout ─────────────────────── */
