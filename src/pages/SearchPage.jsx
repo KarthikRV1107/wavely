@@ -86,8 +86,9 @@ export default function SearchPage() {
         padding: isDesktop ? '14px 0 12px' : '12px 16px',
         position:'sticky', top: isDesktop ? 52 : 0, zIndex:20,
         background:'transparent',
-        backdropFilter:'blur(20px)', WebkitBackdropFilter:'blur(20px)',
-        borderBottom:'1px solid var(--border)',
+        backdropFilter:isDesktop ? 'none' : 'blur(20px)',
+        WebkitBackdropFilter:isDesktop ? 'none' : 'blur(20px)',
+        borderBottom:isDesktop ? 'none' : '1px solid var(--border)',
       }}>
         {!isDesktop && (
           <h1 style={{ fontFamily:'var(--font-display)', fontSize:20, fontWeight:800,
@@ -97,7 +98,7 @@ export default function SearchPage() {
         )}
         <div style={{
           display:'flex', alignItems:'center', gap:10,
-          backgroundColor:isDesktop ? 'var(--bg2)' : 'transparent',
+          backgroundColor:'transparent',
           border:isDesktop ? 'none' : '1px solid var(--border2)',
           borderRadius:12, padding:'10px 14px',
         }}>
