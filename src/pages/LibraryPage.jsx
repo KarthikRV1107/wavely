@@ -5,6 +5,7 @@ import { useAuth }       from '../context/AuthContext';
 import { useLibrary }    from '../context/LibraryContext';
 import { useBreakpoint } from '../hooks/useBreakpoint';
 import SongCard from '../components/SongCard/SongCard';
+import PlaylistForm from '../components/Playlist/PlaylistForm';
 
 const TABS = ['Playlists', 'Liked Songs'];
 
@@ -24,6 +25,7 @@ export default function LibraryPage() {
   const [modal,     setModal]     = useState(false);
   const [name,      setName]      = useState('');
   const [saving,    setSaving]    = useState(false);
+  const [playlistSong, setPlaylistSong] = useState(null);
 
   const handleCreate = async () => {
     if (!name.trim() || !uid) return;
@@ -125,7 +127,8 @@ export default function LibraryPage() {
               }}>
                 {liked.map((song,i) => (
                   <SongCard key={song.id ?? song.videoId}
-                    song={song} queue={liked} queueIndex={i} isLiked variant="grid"/>
+                    song={song} queue={liked} queueIndex={i} isLiked variant="grid"
+                    onAddToPlaylist={setPlaylistSong}/>
                 ))}
               </div>
         )}
@@ -192,6 +195,8 @@ export default function LibraryPage() {
           </div>
         </div>
       )}
+      {playlistSong && <PlaylistForm song={playlistSong} playlists={playlists}
+        onClose={() => setPlaylistSong(null)}/>}
     </div>
   );
 }

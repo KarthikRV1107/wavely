@@ -87,10 +87,11 @@ const SongCard = memo(function SongCard({
             <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1L12 21l7.7-7.6 1.1-1a5.5 5.5 0 0 0 0-7.8z"/>
           </svg>
         </Btn>
-        {onAddToPlaylist && <Btn onClick={()=>onAddToPlaylist(song)} label="Add to playlist">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" strokeWidth="1.8">
-            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        {onAddToPlaylist && <Btn onClick={()=>onAddToPlaylist(song)} label="Add to playlist" wide>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text2)" strokeWidth="1.8">
+            <path d="M3 6h12M3 10h9M3 14h6M17 13v8m-4-4h8"/>
           </svg>
+          <span style={{ fontSize:10, fontWeight:700, color:'var(--text2)' }}>Playlist</span>
         </Btn>}
       </div>
     </div>
@@ -172,11 +173,12 @@ const SongCard = memo(function SongCard({
 });
 export default SongCard;
 
-const Btn = ({onClick,label,children}) => (
-  <button onClick={onClick} aria-label={label}
-    style={{ width:28, height:28, borderRadius:6, background:'none',
+const Btn = ({onClick,label,children,wide=false}) => (
+  <button onClick={onClick} aria-label={label} title={label}
+    style={{ width:wide?'auto':28, minWidth:28, height:28, padding:wide?'0 8px':0,
+             display:'inline-flex', gap:5, whiteSpace:'nowrap', borderRadius:6, background:'none',
              border:'none', cursor:'pointer',
-             display:'flex', alignItems:'center', justifyContent:'center' }}>
+             alignItems:'center', justifyContent:'center' }}>
     {children}
   </button>
 );
