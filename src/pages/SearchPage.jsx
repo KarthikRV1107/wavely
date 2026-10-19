@@ -97,7 +97,7 @@ export default function SearchPage() {
         )}
         <div style={{
           display:'flex', alignItems:'center', gap:10,
-          backgroundColor:isDesktop ? 'var(--bg2)' : 'transparent',
+          backgroundColor:isDesktop ? 'var(--bg)' : 'transparent',
           border:'1px solid var(--border2)',
           borderRadius:12, padding:'10px 14px',
         }}>
