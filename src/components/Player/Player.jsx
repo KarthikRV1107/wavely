@@ -65,6 +65,12 @@ const Player = memo(function Player() {
     const r = e.currentTarget.getBoundingClientRect();
     seekTo(Math.floor(((e.clientX - r.left) / r.width) * currentSong.durationSeconds));
   };
+  const handleSeekKeyDown = (e) => {
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    e.preventDefault();
+    const offset = e.key === 'ArrowRight' ? 5 : -5;
+    seekTo(Math.max(0, Math.min(currentSong.durationSeconds, currentTime + offset)));
+  };
 
   if (isDesktop) return (
     <>
@@ -165,11 +171,6 @@ const Player = memo(function Player() {
           borderRadius:18, border:'1px solid var(--border2)',
           boxShadow:'0 -4px 28px rgba(0,0,0,0.6)', overflow:'hidden',
         }}>
-          <div onClick={handleSeek} style={{ height:3, background:'var(--bg4)', cursor:'pointer' }}>
-            <div style={{ height:'100%', width:`${pct}%`,
-                          background:'linear-gradient(90deg,var(--accent),var(--gold))',
-                          transition:'width 0.8s linear' }}/>
-          </div>
           <div style={{ display:'flex', alignItems:'center', gap:10, padding:'9px 12px 10px' }}>
             <img src={currentSong.thumbnailUrl} alt=""
               style={{ width:42, height:42, borderRadius:9, objectFit:'cover', flexShrink:0,
@@ -205,6 +206,17 @@ const Player = memo(function Player() {
                   <polygon points="5,4 15,12 5,20"/><rect x="17" y="4" width="2" height="16"/>
                 </svg>
               </CB>
+            </div>
+          </div>
+          <div role="slider" tabIndex={0} aria-label="Song progress"
+            aria-valuemin={0} aria-valuemax={currentSong.durationSeconds || 0}
+            aria-valuenow={Math.floor(currentTime)} onClick={handleSeek}
+            onKeyDown={handleSeekKeyDown}
+            style={{ height:18, margin:'0 12px 2px', display:'flex', alignItems:'center', cursor:'pointer', outlineOffset:3 }}>
+            <div style={{ position:'relative', width:'100%', height:4, borderRadius:3, background:'var(--bg4)' }}>
+              <div style={{ position:'absolute', inset:'0 auto 0 0', width:`${pct}%`, borderRadius:3,
+                            background:'linear-gradient(90deg,var(--accent),var(--gold))',
+                            transition:'width 0.8s linear' }}/>
             </div>
           </div>
           <div style={{ display:'flex', justifyContent:'space-between',
